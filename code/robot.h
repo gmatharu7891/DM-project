@@ -85,6 +85,13 @@ namespace My_Robot_Space {
     // We assume that a robot covers the whole space of a grid slot.
     // In particular, during movement, it always occupies two grid slots.  Another robot can immediately follow in the same direction and (at most) the same speed so that they are ``bumper-to-bumper''.
 
+    
+    void generate_other_robots_commands(unsigned NS, unsigned EW, std::list<Robot_Command> other_robots_commands, Robot_ID_t **robot_in_initial_situation);
+    
+    void generate_all_possible_next_moves(unsigned NS, unsigned EW, unsigned my_possition_x, unsigned my_possition_y,
+            unsigned destination_x, unsigned destination_y, int **occupancy_table);
+    
+    int** create_occupancy_lookup(unsigned NS, unsigned EW,std::list<Robot_Command> other_robots_commands, Robot_ID_t **robot_in_initial_situation);
 }
 
 #endif	/* ROBOT_H */

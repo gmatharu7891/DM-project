@@ -36,7 +36,6 @@ int main(int argc, char** argv) {
     
     robot_in_initial_situation[2][2] = other_robot_id;
     
-    std::cout << "Robot at 0 0 - " << robot_in_initial_situation[0][0] << std::endl;
     std::cout << "Robot at 2 2 - " << robot_in_initial_situation[2][2] << std::endl;
     
     std::list< Robot_Command > other_robots_commands;
@@ -62,12 +61,14 @@ int main(int argc, char** argv) {
     
     std::list< Robot_Command > *p_my_robots_commands;
     
+    std::cout << "\nCalling move_a_robot...\n" << std::endl;
+    
 
-    My_Robot_Space::time_t tha_time = move_a_robot(NS, EW, robot_in_initial_situation,  
+    My_Robot_Space::time_t the_time = move_a_robot(NS, EW, robot_in_initial_situation,  
             other_robots_commands, 
             my_robot_id, x_destination, y_destination);
     
-    std::cout << tha_time << std::endl;
+    std::cout << the_time << std::endl;
     
 
     return 0;
