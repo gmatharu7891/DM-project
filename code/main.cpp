@@ -59,6 +59,7 @@ int main(int argc, char** argv) {
     unsigned x_destination = 4;
     unsigned y_destination = 4;
     
+    
     std::list< Robot_Command > *p_my_robots_commands;
     
     std::cout << "\nCalling move_a_robot...\n" << std::endl;
@@ -66,7 +67,8 @@ int main(int argc, char** argv) {
 
     My_Robot_Space::time_t the_time = move_a_robot(NS, EW, robot_in_initial_situation,  
             other_robots_commands, 
-            my_robot_id, x_destination, y_destination);
+            my_robot_id, x_destination, y_destination,
+            p_my_robots_commands);
     
     std::cout << the_time << std::endl;
     

@@ -42,7 +42,9 @@ namespace My_Robot_Space {
                         Robot_ID_t const *const *robot_in_initial_situation, 
                         const std::list< Robot_Command > & other_robots_commands,
                         Robot_ID_t my_robot,
-                        unsigned x_destination, unsigned y_destination);
+                        unsigned x_destination, unsigned y_destination, 
+                        std::list< Robot_Command > *p_my_robots_commands);
+    
     // Everything happens on a NS by EW grid.
 
     // Before time interval 0, the robot on grid slot with coordinate (x,y) in {0,...,EW-1}x{0,...,NS-1} is:
@@ -91,7 +93,7 @@ namespace My_Robot_Space {
     void generate_all_possible_next_moves(unsigned NS, unsigned EW, unsigned my_possition_x, unsigned my_possition_y,
             unsigned destination_x, unsigned destination_y, int **occupancy_table);
     
-    int** create_occupancy_lookup(unsigned NS, unsigned EW,std::list<Robot_Command> other_robots_commands, Robot_ID_t **robot_in_initial_situation);
+    int** create_occupancy_lookup(unsigned NS, unsigned EW, std::list<Robot_Command> other_robots_commands, Robot_ID_t **robot_in_initial_situation);
 }
 
 #endif	/* ROBOT_H */
