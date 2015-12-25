@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     
     std::cout << "Grid size: NS - " << NS << "; EW - " << EW << std::endl;
     
-    Robot_ID_t **robot_in_initial_situation;
+    Robot_ID_t **robot_in_initial_situation = new Robot_ID_t *[NS];
     
     robot_in_initial_situation[0] = new Robot_ID_t[EW];
     
@@ -50,8 +50,6 @@ int main(int argc, char** argv) {
     
     struct Robot_Command second_command;
     
-    
-    
     second_command.t = 2;
     second_command.r = other_robot_id;
     second_command.cmd = Robot_Command_Type::stop;
@@ -63,6 +61,7 @@ int main(int argc, char** argv) {
     unsigned y_destination = 4;
     
     std::list< Robot_Command > *p_my_robots_commands;
+    
 
     My_Robot_Space::time_t tha_time = move_a_robot(NS, EW, robot_in_initial_situation,  
             other_robots_commands, 
