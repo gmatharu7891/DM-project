@@ -19,7 +19,7 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
 }
 
 // Function to generate commands and initial positions for other robots
-void My_Robot_Space::generate_other_robots_commands(unsigned NS, unsigned EW, 
+void My_Robot_Space::generate_other_robots_commands(unsigned number_of_robots, unsigned NS, unsigned EW, 
         std::list<Robot_Command> other_robots_commands, Robot_ID_t **robot_in_initial_situation){
     
     // ...
@@ -44,3 +44,4 @@ void generate_all_possible_next_moves(unsigned NS, unsigned EW, unsigned my_poss
     // ...
 }
 
+// Function to illustrate the result (TBA)

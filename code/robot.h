@@ -28,7 +28,22 @@ namespace My_Robot_Space {
 
     // These are the commands which can be sent to the robots: accelerate into a direction, or stop.
     enum class Robot_Command_Type : char { acc_E, acc_N, acc_W, acc_S, stop };
+    
+    // These are the commands which can be executed by the robots. We need this type for occupancy table
+    enum class Robot_Executing_Command_Type : char { acc_E, acc_N, acc_W, acc_S, stop, idle, moving_E, moving_N, moving_W, moving_S};
+    
+    // There are the types of slot occupancies.
+    enum class Slot_Occupancy_Type : char { e_1_2, e_1_4, w_1_2, w_1_4 };
+    
 
+    struct Slot_Occupancy{
+        unsigned          slot_x;
+        unsigned          slot_y;
+        Slot_Occupancy_Type  occup_type;
+        Robot_ID_t          r;
+        Robot_Executing_Command_Type cmd;
+    };
+    
     struct Robot_Command {
         time_t              t;
         Robot_ID_t          r;
@@ -73,12 +88,12 @@ namespace My_Robot_Space {
     //   - stopping         takes 1 second step and covers 1/2 width of a grid slot.
     //   - normal movement  (after acceleration, before stopping) full width of a grid slot
 
-    // Fast robot NW-movement (= Slow robot EW-movement)
+    // Fast robot NS-movement (= Slow robot EW-movement)
     //   - accelerating     takes 1 second and covers 1/4 width of a grid slot.
     //   - stopping         takes 1 second step and covers 1/4 width of a grid slot.
     //   - normal movement  (after acceleration, before stopping) 1/2 width of a grid slot
 
-    // Slow robot NW-movement
+    // Slow robot NS-movement
     //   - accelerating     takes 1 second and covers 1/8 width of a grid slot.
     //   - stopping         takes 1 second step and covers 1/8 width of a grid slot.
     //   - normal movement  (after acceleration, before stopping) 1/4 width of a grid slot
@@ -88,7 +103,7 @@ namespace My_Robot_Space {
     // In particular, during movement, it always occupies two grid slots.  Another robot can immediately follow in the same direction and (at most) the same speed so that they are ``bumper-to-bumper''.
 
     
-    void generate_other_robots_commands(unsigned NS, unsigned EW, std::list<Robot_Command> other_robots_commands, Robot_ID_t **robot_in_initial_situation);
+    void generate_other_robots_commands(unsigned number_of_robots, unsigned NS, unsigned EW, std::list<Robot_Command> other_robots_commands, Robot_ID_t **robot_in_initial_situation);
     
     void generate_all_possible_next_moves(unsigned NS, unsigned EW, unsigned my_possition_x, unsigned my_possition_y,
             unsigned destination_x, unsigned destination_y, int **occupancy_table);
