@@ -105,10 +105,15 @@ namespace My_Robot_Space {
     
     void generate_other_robots_commands(unsigned number_of_robots, unsigned NS, unsigned EW, std::list<Robot_Command> other_robots_commands, Robot_ID_t **robot_in_initial_situation);
     
+
     void generate_all_possible_next_moves(unsigned NS, unsigned EW, unsigned my_possition_x, unsigned my_possition_y,
             unsigned destination_x, unsigned destination_y, int **occupancy_table);
     
-    int** create_occupancy_lookup(unsigned NS, unsigned EW, std::list<Robot_Command> other_robots_commands, Robot_ID_t **robot_in_initial_situation);
+    
+    int** create_occupancy_lookup(std::list<Robot_Command> other_robots_commands, Robot_ID_t **robot_in_initial_situation);
+    
+    
+    void render(int **occupancy_table, std::list< Robot_Command > my_robots_commands);
 }
 
 #endif	/* ROBOT_H */
