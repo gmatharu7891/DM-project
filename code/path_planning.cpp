@@ -48,7 +48,7 @@ void My_Robot_Space::generate_other_robots_commands(unsigned number_of_robots, u
 }
 
 
-// Function to generate the occupancy lookup table
+// Function to generate the occupancy lookup table (this one probably will not be used)
 int** My_Robot_Space::create_occupancy_lookup(std::list<Robot_Command> other_robots_commands, Robot_ID_t **robot_in_initial_situation) {
     int **occupancy_lookup;
     // TODO: Assign each robot its initial position
@@ -59,6 +59,30 @@ int** My_Robot_Space::create_occupancy_lookup(std::list<Robot_Command> other_rob
     }
 
     return occupancy_lookup;
+}
+
+// Function to generate the occupancy state of the grid for time t
+std::list<My_Robot_Space::Slot_Occupancy> My_Robot_Space::grid_occupancy_t(Robot_ID_t t, std::list<Robot_Command> other_robots_commands, std::list<Slot_Occupancy> previous_occupancy) {
+    
+    std::list<Slot_Occupancy> current_occupancy;
+    
+    if(t == 0){ // There is no previous_occupancy
+        // from other_robots_commands take elements with t=0
+        // for every such element get robot ID and it's initial position
+        //         apply the command type on the initial position and get the occupancy type after the move is done
+        //         (x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy     
+    }else{ // There is a previous_occupancy
+        // for element in previous_occupancy
+        //         if for element.r there are new command for current t in other_robot_commands
+        //                apply this cmd on the previous occupancy state to generate a new one
+        //                (x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy 
+        //         else // no new cmds, robot moves normally
+        //                apply normal movement to the previous occupancy state to generate a new one  
+        //                (x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy       
+    }
+    
+
+    return current_occupancy;
 }
 
 
