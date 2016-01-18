@@ -17,7 +17,8 @@ using namespace My_Robot_Space;
 int main(int argc, char** argv) {
 
     Robot_ID_t my_robot_id = '1';
-    Robot_ID_t other_robot_id = '2';
+    Robot_ID_t other_robot_id = '9';
+    Robot_ID_t other_robot_id_2 = '3';
 
     std::cout << "My robot ID: " << my_robot_id << std::endl;
 
@@ -25,18 +26,14 @@ int main(int argc, char** argv) {
     unsigned EW = 5;
 
     std::cout << "Grid size: NS - " << NS << "; EW - " << EW << std::endl;
-
-    Robot_ID_t **robot_in_initial_situation = new Robot_ID_t *[NS];
-
-    robot_in_initial_situation[0] = new Robot_ID_t[EW];
-
-    robot_in_initial_situation[0][0] = my_robot_id;
-
-    robot_in_initial_situation[2] = new Robot_ID_t[EW];
-
-    robot_in_initial_situation[2][2] = other_robot_id;
-
-    std::cout << "Robot at 2 2 - " << robot_in_initial_situation[2][2] << std::endl;
+    
+    std::pair <unsigned, unsigned> other_robot_init_1 (2,4);
+    std::pair <unsigned, unsigned> other_robot_init_2 (6,3);
+        
+    std::map<Robot_ID_t, std::pair<unsigned,unsigned>> robot_in_initial_situation;
+    
+    robot_in_initial_situation[other_robot_id] = other_robot_init_2;
+    
 
     std::list< Robot_Command > other_robots_commands;
 
@@ -53,7 +50,7 @@ int main(int argc, char** argv) {
     second_command = new Robot_Command;
 
     second_command->t = 2;
-    second_command->r = other_robot_id;
+    second_command->r = other_robot_id_2;
     second_command->cmd = Robot_Command_Type::stop;
 
     other_robots_commands.push_back(*first_command);
@@ -74,9 +71,12 @@ int main(int argc, char** argv) {
             p_my_robots_commands);
 
     std::cout << the_time << std::endl;
+    
+    std::list<Slot_Occupancy> previous_occupancy;
 
+    std::cout << "Grid occupancy: " << std::endl;
     // Testing the function
-    create_occupancy_lookup(other_robots_commands, robot_in_initial_situation);
+    grid_occupancy_t(0, other_robots_commands, previous_occupancy, robot_in_initial_situation);
 
     
     return 0;

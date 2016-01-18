@@ -2,26 +2,35 @@
 #include "robot.h"
 #include <iostream>
 #include <unistd.h>
+#include <map>
 
 // Function to compute the shortest path
+
 My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsigned gridsize_EW,
-        Robot_ID_t const *const *robot_in_initial_situation,
+        const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation,
         const std::list<Robot_Command>& other_robots_commands, Robot_ID_t my_robot,
         unsigned x_destination, unsigned y_destination,
         std::list< Robot_Command > *p_my_robots_commands) {
 
     std::cout << "returns the shortest path " << std::endl;
 
-    std::cout << "Robot at 0 0 - " << robot_in_initial_situation[0][0] << std::endl;
+    for (auto elem : robot_in_initial_situation) {
+        std::cout << elem.first << ":ID " << elem.second.first << ":x " << elem.second.second << ":y \n";
+    }
+    
+    
+    
+    
 
     std::cout << "My robot: " << my_robot << std::endl;
-    
+
     return 12;
 }
 
 // Function to generate commands and initial positions for other robots
+
 void My_Robot_Space::generate_other_robots_commands(unsigned number_of_robots, unsigned NS, unsigned EW,
-        std::list<Robot_Command> other_robots_commands, Robot_ID_t **robot_in_initial_situation) {
+        std::list<Robot_Command> other_robots_commands, std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation) {
 
     /* Some guidelines:
      * 
@@ -42,36 +51,33 @@ void My_Robot_Space::generate_other_robots_commands(unsigned number_of_robots, u
      * IF slow robot accelerates south or north, ...
      * ... it has to move normally for 3*x seconds before being stopped (1/8 + 1/4 + 1/4 + 1/4 + 1/8 = 1 - no problem, robot occupies full slot).
      * 
-    */
+     */
     // ...
 
 }
 
 
-// Function to generate the occupancy lookup table (this one probably will not be used)
-int** My_Robot_Space::create_occupancy_lookup(std::list<Robot_Command> other_robots_commands, Robot_ID_t **robot_in_initial_situation) {
-    int **occupancy_lookup;
-    // TODO: Assign each robot its initial position
-    // TODO: Fill in the occupancy_lookup
-    
-    for (auto& it : other_robots_commands) {
-        std::cout << it.t << std::endl;
-    }
-
-    return occupancy_lookup;
-}
-
 // Function to generate the occupancy state of the grid for time t
-std::list<My_Robot_Space::Slot_Occupancy> My_Robot_Space::grid_occupancy_t(Robot_ID_t t, std::list<Robot_Command> other_robots_commands, std::list<Slot_Occupancy> previous_occupancy) {
-    
+
+std::list<My_Robot_Space::Slot_Occupancy> My_Robot_Space::grid_occupancy_t(Robot_ID_t t, std::list<Robot_Command> other_robots_commands,
+        std::list<Slot_Occupancy> previous_occupancy, const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation) {
+
     std::list<Slot_Occupancy> current_occupancy;
     
-    if(t == 0){ // There is no previous_occupancy
+    // just example hoe to get stuff from map
+    std::cout << robot_in_initial_situation.find('9')->second.first << std::endl;
+
+    if (t == 0) { // There is no previous_occupancy
         // from other_robots_commands take elements with t=0
+        for (auto& el : other_robots_commands) {
+            if (el.t == 0) {
+                std::cout << el.r << std::endl;
+            }
+        }
         // for every such element get robot ID and it's initial position
         //         apply the command type on the initial position and get the occupancy type after the move is done
         //         (x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy     
-    }else{ // There is a previous_occupancy
+    } else { // There is a previous_occupancy
         // for element in previous_occupancy
         //         if for element.r there are new command for current t in other_robot_commands
         //                apply this cmd on the previous occupancy state to generate a new one
@@ -80,7 +86,7 @@ std::list<My_Robot_Space::Slot_Occupancy> My_Robot_Space::grid_occupancy_t(Robot
         //                apply normal movement to the previous occupancy state to generate a new one  
         //                (x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy       
     }
-    
+
 
     return current_occupancy;
 }
@@ -90,23 +96,26 @@ std::list<My_Robot_Space::Slot_Occupancy> My_Robot_Space::grid_occupancy_t(Robot
 
 
 // Function to generate all possible next moves
-void generate_all_possible_next_moves(unsigned NS, unsigned EW, unsigned my_possition_x, unsigned my_possition_y,
-        unsigned destination_x, unsigned destination_y, int **occupancy_table) {
+
+void generate_all_possible_next_moves(unsigned NS, unsigned EW, std::pair<unsigned, unsigned> my_current_position,
+        std::pair<unsigned, unsigned> my_destinaniton, std::list<My_Robot_Space::Slot_Occupancy> grid_occupancy) {
 
     // ...
 }
 
 
 // Render the whole process
-void My_Robot_Space::render(int **occupancy_table, std::list< Robot_Command > my_robots_commands) {
+
+void My_Robot_Space::render(std::list<Robot_Command> other_robots_commands, std::list< Robot_Command > my_robots_commands,
+        std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation) {
 
     // Initialize grid and fill it with zeros
-    char **robot_in_initial_situation = new char *[10];
+    char **grid = new char *[10];
 
     for (int i = 0; i < 10; ++i) {
-        robot_in_initial_situation[i] = new char[10];
+        grid[i] = new char[10];
         for (int j = 0; j < 10; ++j) {
-            robot_in_initial_situation[i][j] = '0';
+            grid[i][j] = '0';
         }
     }
 
