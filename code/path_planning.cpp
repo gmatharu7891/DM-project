@@ -82,9 +82,9 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
                 slots_occupancy = new Slots_Occupancy;
                 slots_occupancy->r = el.r;
                 slots_occupancy->cmd = el.cmd;
-                std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied = apply_command_on_initial_position(el.r, el.cmd, init_pos);
+                slots_occupancy->slots_occupied = apply_command_on_initial_position(el.r, el.cmd, init_pos);
+                
                 // (x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy 
-                slots_occupancy->slots_occupied = slots_occupied;
                 current_occupancy.push_back(*slots_occupancy);
             } else {
                 break; // since elements are sorted by time, when we hit non zero time element we should stop
