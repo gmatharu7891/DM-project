@@ -78,6 +78,8 @@ int main(int argc, char** argv) {
     std::cout << "\nGrid occupancy: " << std::endl;
     // Testing the function
     grid_occupancy_t(0, other_robots_commands, previous_occupancy, robot_in_initial_situation);
+    std::list< Robot_Command > my_robots_commands;
+    // render(other_robots_commands, my_robots_commands, robot_in_initial_situation);
 
     
     return 0;
