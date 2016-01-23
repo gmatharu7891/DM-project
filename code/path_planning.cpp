@@ -17,10 +17,10 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
     for (auto elem : robot_in_initial_situation) {
         std::cout << elem.first << ":ID " << elem.second.first << ":x " << elem.second.second << ":y \n";
     }
-    
-    
-    
-    
+
+
+
+
 
     std::cout << "My robot: " << my_robot << std::endl;
 
@@ -63,20 +63,79 @@ std::list<My_Robot_Space::Slot_Occupancy> My_Robot_Space::grid_occupancy_t(Robot
         std::list<Slot_Occupancy> previous_occupancy, const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation) {
 
     std::list<Slot_Occupancy> current_occupancy;
-    
-    // just example hoe to get stuff from map
-    std::cout << robot_in_initial_situation.find('9')->second.first << std::endl;
 
     if (t == 0) { // There is no previous_occupancy
         // from other_robots_commands take elements with t=0
         for (auto& el : other_robots_commands) {
             if (el.t == 0) {
-                std::cout << el.r << std::endl;
+                // for every such element get robot ID and it's initial position
+                std::pair<unsigned, unsigned> init_pos;
+                init_pos.first = robot_in_initial_situation.find(el.r)->second.first;
+                init_pos.second = robot_in_initial_situation.find(el.r)->second.second;
+
+                std::cout << "Robot ID: " << el.r << " X: " << init_pos.first << " Y: " << init_pos.second << std::endl;
+
+                // apply the command type on the initial position and get the occupancy type after the move is done  
+                Slot_Occupancy *slot_occupancy;
+                slot_occupancy->r = el.r;
+                slot_occupancy->cmd = el.cmd;
+                
+                std::cout << static_cast<int>(el.cmd) << std::endl;
+                
+                if (is_fast(el.r)) { // Move fast robot
+                    switch (el.cmd) {
+                        case Robot_Command_Type::acc_E:
+                            // move robot east from init_pos;
+                            std::cout << "Accelerate fast robot east" << std::endl;
+                            break;
+                        case Robot_Command_Type::acc_N:
+                            // move robot north from init_pos;
+                            std::cout << "Accelerate fast robot north" << std::endl;
+                            break;
+                        case Robot_Command_Type::acc_S:
+                            // move robot south from init_pos;
+                            std::cout << "Accelerate fast robot south" << std::endl;
+                            break;
+                        case Robot_Command_Type::acc_W:
+                            // move robot west from init_pos;
+                            std::cout << "Accelerate fast robot west" << std::endl;
+                            break;
+                        case Robot_Command_Type::stop:
+                            // stop robot, unlikely to happen;
+                            std::cout << "Fast robot's first command is stop. Really? Why?" << std::endl;
+                            break;
+                    }
+                }else{ // Move slow robot
+                    switch (el.cmd) {
+                        case Robot_Command_Type::acc_E:
+                            // move robot east from init_pos;
+                            std::cout << "Accelerate slow robot east" << std::endl;
+                            break;
+                        case Robot_Command_Type::acc_N:
+                            // move robot north from init_pos;
+                            std::cout << "Accelerate slow robot north" << std::endl;
+                            break;
+                        case Robot_Command_Type::acc_S:
+                            // move robot south from init_pos;
+                            std::cout << "Accelerate slow robot south" << std::endl;
+                            break;
+                        case Robot_Command_Type::acc_W:
+                            // move robot west from init_pos;
+                            std::cout << "Accelerate slow robot west" << std::endl;
+                            break;
+                        case Robot_Command_Type::stop:
+                            // stop robot, unlikely to happen;
+                            std::cout << "Slow robot's first command is stop. Really? Why?" << std::endl;
+                            break;
+                    }
+                }
+                
+                // (x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy 
+                current_occupancy.push_back(*slot_occupancy);
             }
         }
-        // for every such element get robot ID and it's initial position
-        //         apply the command type on the initial position and get the occupancy type after the move is done
-        //         (x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy     
+
+
     } else { // There is a previous_occupancy
         // for element in previous_occupancy
         //         if for element.r there are new command for current t in other_robot_commands
@@ -139,5 +198,11 @@ void My_Robot_Space::render(std::list<Robot_Command> other_robots_commands, std:
     std::cout << "Finished" << std::endl;
 
 }
+
+bool My_Robot_Space::is_fast(Robot_ID_t r){
+        if(r>127)
+            return true;
+        return false;
+    }
 
 

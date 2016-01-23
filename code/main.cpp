@@ -16,9 +16,9 @@ using namespace My_Robot_Space;
  */
 int main(int argc, char** argv) {
 
-    Robot_ID_t my_robot_id = '1';
-    Robot_ID_t other_robot_id = '9';
-    Robot_ID_t other_robot_id_2 = '3';
+    Robot_ID_t my_robot_id = 1;
+    Robot_ID_t other_robot_id = 128;
+    Robot_ID_t other_robot_id_2 = 3;
 
     std::cout << "My robot ID: " << my_robot_id << std::endl;
 
@@ -74,7 +74,8 @@ int main(int argc, char** argv) {
     
     std::list<Slot_Occupancy> previous_occupancy;
 
-    std::cout << "Grid occupancy: " << std::endl;
+    
+    std::cout << "\nGrid occupancy: " << std::endl;
     // Testing the function
     grid_occupancy_t(0, other_robots_commands, previous_occupancy, robot_in_initial_situation);
 

@@ -12,6 +12,9 @@
 
 #include <list>
 #include <map>
+#include <type_traits>
+#include <iostream>
+
 
 namespace My_Robot_Space {
 
@@ -22,20 +25,16 @@ namespace My_Robot_Space {
     // (Slow robots move at half the speed of fast robots.)
 
     // Robot ID
-    typedef unsigned char Robot_ID_t;
+    typedef unsigned Robot_ID_t;
 
     // Everything happens in time intervals, let's think of them as seconds.
     typedef unsigned long time_t;
 
     // These are the commands which can be sent to the robots: accelerate into a direction, or stop
+    // ... plus some extra (idle, moving_E, moving_N, moving_W, moving_S) for sake of implementation of some functions
+    // ... NOTE!!! extra command can not be directly sent to robots, we don't put them in other_robots_commands list
 
     enum class Robot_Command_Type : char {
-        acc_E, acc_N, acc_W, acc_S, stop
-    };
-
-    // These are the commands which can be executed by the robots. We need this type for occupancy table
-
-    enum class Robot_Executing_Command_Type : char {
         acc_E, acc_N, acc_W, acc_S, stop, idle, moving_E, moving_N, moving_W, moving_S
     };
 
@@ -46,10 +45,10 @@ namespace My_Robot_Space {
     };
 
     struct Slot_Occupancy {
+        Robot_ID_t r;
         std::pair<unsigned, unsigned> pos;
         Slot_Occupancy_Type occup_type;
-        Robot_ID_t r;
-        Robot_Executing_Command_Type cmd;
+        Robot_Command_Type cmd;
     };
 
     struct Robot_Command {
@@ -110,12 +109,12 @@ namespace My_Robot_Space {
     // During movement, it sometimes occupies parts of two grid slots.  
     // Another robot can immediately follow in the same direction and (at most) the same speed so that they are ``bumper-to-bumper''.
 
-    
-    //-----------------------------------------------------------------------------------------    
-    
+
+    //------------------------------------Main functions-----------------------------------------------------//
+
 
     // Function to generate commands and initial positions for other robots
-     /* Some guidelines: (IMPORTANT!)
+    /* Some guidelines: (IMPORTANT!)
      * 
      * First the robots IDs and initial positions should be assigned to all the robots (no collisions!)
      * Then each robot is processed one by one, i.e. first "come up" with commands for the first robot.
@@ -139,7 +138,7 @@ namespace My_Robot_Space {
     void generate_other_robots_commands(unsigned number_of_robots, unsigned NS, unsigned EW, std::list<Robot_Command> other_robots_commands,
             const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation);
 
-    
+
     // Function to generate all possible next moves
     void generate_all_possible_next_moves(unsigned NS, unsigned EW, std::pair<unsigned, unsigned> my_current_position,
             std::pair<unsigned, unsigned> my_destinaniton, std::list<My_Robot_Space::Slot_Occupancy> grid_occupancy);
@@ -149,10 +148,17 @@ namespace My_Robot_Space {
     std::list<Slot_Occupancy> grid_occupancy_t(Robot_ID_t t, std::list<Robot_Command> other_robots_commands, std::list<Slot_Occupancy> previous_occupancy,
             const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation);
 
-    
+
     // Render the whole process
     void render(std::list<Robot_Command> other_robots_commands, std::list< Robot_Command > my_robots_commands,
             std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation);
+    
+    
+    //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤Additional functions¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤//
+    
+    bool is_fast(Robot_ID_t r);
+    
+
 }
 
 #endif	/* ROBOT_H */
