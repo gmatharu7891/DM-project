@@ -58,13 +58,14 @@ void My_Robot_Space::generate_other_robots_commands(unsigned number_of_robots, u
 
 
 // Function to generate the occupancy state of the grid for time t
+// function assumes the commands in other_robot_commands are legal!
 
-std::list<My_Robot_Space::Slot_Occupancy> My_Robot_Space::grid_occupancy_t(Robot_ID_t t, std::list<Robot_Command> other_robots_commands,
-        std::list<Slot_Occupancy> previous_occupancy, const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation) {
+std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robot_ID_t t, std::list<Robot_Command> other_robots_commands,
+        std::list<Slots_Occupancy> previous_occupancy, const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation) {
 
-    std::list<Slot_Occupancy> current_occupancy;
+    std::list<Slots_Occupancy> current_occupancy;
 
-    if (t == 0) { // There is no previous_occupancy
+    if (t == 0) { // there is no previous_occupancy
         // from other_robots_commands take elements with t=0
         for (auto& el : other_robots_commands) {
             if (el.t == 0) {
@@ -75,68 +76,142 @@ std::list<My_Robot_Space::Slot_Occupancy> My_Robot_Space::grid_occupancy_t(Robot
 
                 std::cout << "Robot ID: " << el.r << " X: " << init_pos.first << " Y: " << init_pos.second << std::endl;
 
-                // apply the command type on the initial position and get the occupancy type after the move is done  
-                Slot_Occupancy *slot_occupancy;
-                slot_occupancy->r = el.r;
-                slot_occupancy->cmd = el.cmd;
-                
-                std::cout << static_cast<int>(el.cmd) << std::endl;
-                
-                if (is_fast(el.r)) { // Move fast robot
+                // apply the command type on the initial position and get the occupancy type and occupied slots after the move is done  
+                std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied;
+                struct Slots_Occupancy *slots_occupancy;
+                slots_occupancy = new Slots_Occupancy;
+                slots_occupancy->r = el.r;
+                slots_occupancy->cmd = el.cmd;
+
+
+                std::cout << "Command being executed: " << static_cast<int> (el.cmd) << std::endl;
+
+                if (is_fast(el.r)) { // move fast robot
                     switch (el.cmd) {
                         case Robot_Command_Type::acc_E:
+                        {
                             // move robot east from init_pos;
                             std::cout << "Accelerate fast robot east" << std::endl;
+                            // init_pos is now occupied 1/2 on the east side of the slot
+                            // init_pos.x+1, init_pos.y is now occupied 1/2 on the west side of the slot
+                            std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first+1, init_pos.second);
+
+                            slots_occupied[init_pos] = Slot_Occupancy_Type::e_1_2;
+                            slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::w_1_2;
+
+                            std::cout << "Should be 3: " << static_cast<int> ((slots_occupied.begin()->first.second)) << std::endl;
+                        }
                             break;
                         case Robot_Command_Type::acc_N:
+                        {
                             // move robot north from init_pos;
                             std::cout << "Accelerate fast robot north" << std::endl;
+                            // init_pos is now occupied 3/4 on the north side of the slot
+                            // init_pos.x, init_pos.y+1 is now occupied 1/4 on the south side of the slot
+                            std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first, init_pos.second+1);
+
+                            slots_occupied[init_pos] = Slot_Occupancy_Type::n_3_4;
+                            slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::s_1_4;
+                        }
                             break;
                         case Robot_Command_Type::acc_S:
+                        {
                             // move robot south from init_pos;
                             std::cout << "Accelerate fast robot south" << std::endl;
+                            // init_pos is now occupied 3/4 on the south side of the slot
+                            // init_pos.x+1, init_pos.y is now occupied 1/4 on the north side of the slot
+                            std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first, init_pos.second-1);
+
+                            slots_occupied[init_pos] = Slot_Occupancy_Type::s_3_4;
+                            slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::n_1_4;
+                        }
                             break;
                         case Robot_Command_Type::acc_W:
+                        {
                             // move robot west from init_pos;
                             std::cout << "Accelerate fast robot west" << std::endl;
+                            // init_pos is now occupied 1/2 on the west side of the slot
+                            // init_pos.x-1, init_pos.y is now occupied 1/2 on the east side of the slot
+                            std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first-1, init_pos.second);
+
+                            slots_occupied[init_pos] = Slot_Occupancy_Type::w_1_2;
+                            slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::e_1_2;
+                        }
                             break;
                         case Robot_Command_Type::stop:
+                        {
                             // stop robot, unlikely to happen;
                             std::cout << "Fast robot's first command is stop. Really? Why?" << std::endl;
+                        }
                             break;
                     }
-                }else{ // Move slow robot
+                } else { // move slow robot
                     switch (el.cmd) {
                         case Robot_Command_Type::acc_E:
+                        {
                             // move robot east from init_pos;
                             std::cout << "Accelerate slow robot east" << std::endl;
+                            // init_pos is now occupied 3/4 on the east side of the slot
+                            // init_pos.x+1, init_pos.y is now occupied 1/4 on the west side of the slot
+                            std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first+1, init_pos.second);
+
+                            slots_occupied[init_pos] = Slot_Occupancy_Type::e_3_4;
+                            slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::w_1_4;
+                        }
                             break;
                         case Robot_Command_Type::acc_N:
+                        {
                             // move robot north from init_pos;
                             std::cout << "Accelerate slow robot north" << std::endl;
+                            // init_pos is now occupied 7/8 on the north side of the slot
+                            // init_pos.x, init_pos.y+1 is now occupied 1/8 on the south side of the slot
+                            std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first, init_pos.second+1);
+
+                            slots_occupied[init_pos] = Slot_Occupancy_Type::n_7_8;
+                            slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::s_1_8;
+                        }
                             break;
                         case Robot_Command_Type::acc_S:
+                        {
                             // move robot south from init_pos;
                             std::cout << "Accelerate slow robot south" << std::endl;
+                            // init_pos is now occupied 7/8 on the south side of the slot
+                            // init_pos.x, init_pos.y-1 is now occupied 1/8 on the north side of the slot
+                            std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first, init_pos.second-1);
+
+                            slots_occupied[init_pos] = Slot_Occupancy_Type::s_7_8;
+                            slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::n_1_8;
+                        }
                             break;
                         case Robot_Command_Type::acc_W:
+                        {
                             // move robot west from init_pos;
                             std::cout << "Accelerate slow robot west" << std::endl;
+                            // init_pos is now occupied 3/4 on the west side of the slot
+                            // init_pos.x-1, init_pos.y is now occupied 1/4 on the east side of the slot
+                            std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first-1, init_pos.second);
+
+                            slots_occupied[init_pos] = Slot_Occupancy_Type::w_3_4;
+                            slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::e_1_4;
+                        }
                             break;
                         case Robot_Command_Type::stop:
+                        {
                             // stop robot, unlikely to happen;
                             std::cout << "Slow robot's first command is stop. Really? Why?" << std::endl;
+                        }
                             break;
                     }
                 }
-                
                 // (x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy 
-                current_occupancy.push_back(*slot_occupancy);
+                slots_occupancy->slots_occupied = slots_occupied;
+                current_occupancy.push_back(*slots_occupancy);
+            } else {
+                break; // since elements are sorted by time, when we hit non zero time element we should stop
             }
         }
 
-
-    } else { // There is a previous_occupancy
+    } else { // there is a previous_occupancy
         // for element in previous_occupancy
         //         if for element.r there are new command for current t in other_robot_commands
         //                apply this cmd on the previous occupancy state to generate a new one
@@ -144,6 +219,11 @@ std::list<My_Robot_Space::Slot_Occupancy> My_Robot_Space::grid_occupancy_t(Robot
         //         else // no new cmds, robot moves normally
         //                apply normal movement to the previous occupancy state to generate a new one  
         //                (x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy       
+    }
+
+    std::cout << "Size of current occupancy list" << current_occupancy.size() << std::endl;
+    for (auto elem : current_occupancy) {
+        std::cout << "Should be 3: " << elem.slots_occupied.begin()->first.second << std::endl;
     }
 
 
@@ -157,7 +237,7 @@ std::list<My_Robot_Space::Slot_Occupancy> My_Robot_Space::grid_occupancy_t(Robot
 // Function to generate all possible next moves
 
 void generate_all_possible_next_moves(unsigned NS, unsigned EW, std::pair<unsigned, unsigned> my_current_position,
-        std::pair<unsigned, unsigned> my_destinaniton, std::list<My_Robot_Space::Slot_Occupancy> grid_occupancy) {
+        std::pair<unsigned, unsigned> my_destinaniton, std::list<My_Robot_Space::Slots_Occupancy> grid_occupancy) {
 
     // ...
 }
@@ -199,10 +279,11 @@ void My_Robot_Space::render(std::list<Robot_Command> other_robots_commands, std:
 
 }
 
-bool My_Robot_Space::is_fast(Robot_ID_t r){
-        if(r>127)
-            return true;
-        return false;
-    }
+bool My_Robot_Space::is_fast(Robot_ID_t r) {
+    if (r > 127)
+        return true;
+    return false;
+}
+
 
 

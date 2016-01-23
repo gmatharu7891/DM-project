@@ -12,8 +12,6 @@
 
 #include <list>
 #include <map>
-#include <type_traits>
-#include <iostream>
 
 
 namespace My_Robot_Space {
@@ -44,11 +42,10 @@ namespace My_Robot_Space {
         full, e_1_2, w_1_2, e_1_4, w_1_4, n_1_4, s_1_4, e_3_4, w_3_4, n_3_4, s_3_4, n_1_8, n_3_8, n_5_8, n_7_8, s_1_8, s_3_8, s_5_8, s_7_8
     };
 
-    struct Slot_Occupancy {
+    struct Slots_Occupancy {
         Robot_ID_t r;
-        std::pair<unsigned, unsigned> pos;
-        Slot_Occupancy_Type occup_type;
         Robot_Command_Type cmd;
+        std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type>  slots_occupied;
     };
 
     struct Robot_Command {
@@ -141,11 +138,11 @@ namespace My_Robot_Space {
 
     // Function to generate all possible next moves
     void generate_all_possible_next_moves(unsigned NS, unsigned EW, std::pair<unsigned, unsigned> my_current_position,
-            std::pair<unsigned, unsigned> my_destinaniton, std::list<My_Robot_Space::Slot_Occupancy> grid_occupancy);
+            std::pair<unsigned, unsigned> my_destinaniton, std::list<My_Robot_Space::Slots_Occupancy> grid_occupancy);
 
 
     // Function to generate the occupancy state of the grid for time t
-    std::list<Slot_Occupancy> grid_occupancy_t(Robot_ID_t t, std::list<Robot_Command> other_robots_commands, std::list<Slot_Occupancy> previous_occupancy,
+    std::list<Slots_Occupancy> grid_occupancy_t(Robot_ID_t t, std::list<Robot_Command> other_robots_commands, std::list<Slots_Occupancy> previous_occupancy,
             const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation);
 
 

@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
 
     std::cout << the_time << std::endl;
     
-    std::list<Slot_Occupancy> previous_occupancy;
+    std::list<Slots_Occupancy> previous_occupancy;
 
     
     std::cout << "\nGrid occupancy: " << std::endl;
