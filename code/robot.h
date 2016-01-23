@@ -155,6 +155,9 @@ namespace My_Robot_Space {
     
     bool is_fast(Robot_ID_t r);
     
+    std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> apply_command_on_initial_position(Robot_ID_t r, 
+            Robot_Command_Type cmd, std::pair<unsigned, unsigned> init_pos);
+    
 
 }
 
