@@ -159,11 +159,14 @@ namespace My_Robot_Space {
 
     //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤Additional functions¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤//
 
+    // Determine type of the robot
     bool is_fast(Robot_ID_t r);
 
+    // Returns slots occupied after robot accelerates
     std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> apply_command_on_idle_position(Robot_ID_t r,
             Robot_Command_Type cmd, std::pair<unsigned, unsigned> init_pos);
-
+    
+    // Returns slots occupied after robot moves normally or stops
     std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> move_robot_normally_or_stop(Robot_ID_t r,
             Robot_Command_Type current_cmd, Robot_Command_Type previous_cmd, std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied);
     

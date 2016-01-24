@@ -44,21 +44,21 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
             std::list<TreeNode*> children = generate_all_possible_next_moves(gridsize_NS, gridsize_EW, node_to_visit,
                     my_destination, current_occupancy);
             // Check if any of the children reached the goal, if so break;
-            
+
             // Otherwise:
             previous_occupancy = current_occupancy;
             t++;
             current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
-            
+
             if (!children.empty()) {
                 for (auto& child_node : children) {
                     bfs_queue.push(child_node);
                 }
-            }else{
+            } else {
                 break; // Added for now for the sake of testing
             }
         }
-        
+
         // Reconstruct the path, populate the list of my robot commands
     }
 
@@ -97,7 +97,6 @@ void My_Robot_Space::generate_other_robots_commands(unsigned number_of_robots, u
 
 // Function to generate the occupancy state of the grid for time t
 // function assumes the commands in other_robot_commands are legal!
-
 std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robot_ID_t t, std::list<Robot_Command> other_robots_commands,
         std::list<Slots_Occupancy> previous_occupancy, const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation) {
 
@@ -153,8 +152,6 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
                             // Case where robot is idle before (NOT between the slots) and can change direction
                             slots_occupancy->slots_occupied = apply_command_on_idle_position(prev_occupancy.r, cmd.cmd, prev_occupancy.slots_occupied.begin()->first);
                         }
-
-                        // (x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy 
                         current_occupancy.push_back(*slots_occupancy);
                     }
                 }
@@ -187,7 +184,6 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
                 }
                 slots_occupancy->cmd = new_cmd;
                 slots_occupancy->slots_occupied = move_robot_normally_or_stop(prev_occupancy.r, new_cmd, prev_occupancy.cmd, prev_occupancy.slots_occupied);
-                //(x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy 
                 current_occupancy.push_back(*slots_occupancy);
             }
         }
@@ -202,18 +198,27 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
 
 
 // Function to generate all possible next moves
+// Basically it outputs nice new level of the decision tree
 std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_moves(unsigned NS, unsigned EW, TreeNode *parent,
         std::pair<unsigned, unsigned> my_destinaniton, std::list<Slots_Occupancy> grid_occupancy) {
     std::list<TreeNode*> children;
+
+    // Determine where can we move next after parent.state (what commands would be legal to execute)
+    // .. take into account grid size and current position, and legal state transitions (robots movement specifics)
     
-    // TBA
     
+    
+    // For each legal move, estimate what slots will be occupied after the execution (map of slots occupied)
+    
+    // Eliminate the moves, which lead to collisions with other robots based on the grid_occupancy
+    
+    // For each remaining legal move create a TreeNode object add it to the output list
+
     return children;
 }
 
 
 // Render the whole process
-
 void My_Robot_Space::render(std::list<Robot_Command> other_robots_commands, std::list< Robot_Command > my_robots_commands,
         std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation) {
 
@@ -248,12 +253,14 @@ void My_Robot_Space::render(std::list<Robot_Command> other_robots_commands, std:
 
 }
 
+// Determine type of the robot
 bool My_Robot_Space::is_fast(Robot_ID_t r) {
     if (r <= 127)
         return true;
     return false;
 }
 
+// Returns slots occupied after robot accelerates
 std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_Robot_Space::apply_command_on_idle_position(Robot_ID_t r,
         Robot_Command_Type cmd, std::pair<unsigned, unsigned> init_pos) {
 
@@ -379,6 +386,7 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
     return slots_occupied;
 }
 
+// Returns slots occupied after robot moves normally or stops
 std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_Robot_Space::move_robot_normally_or_stop(Robot_ID_t r, Robot_Command_Type current_cmd,
         Robot_Command_Type previous_cmd, std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied) {
 
