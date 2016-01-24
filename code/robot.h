@@ -59,7 +59,8 @@ namespace My_Robot_Space {
         Robot_Command_Type state;
         std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied;
         std::list<TreeNode*> children;
-        // time_t level;
+        TreeNode* parent; // for path reconstruction
+        time_t level;
     };
 
 
@@ -143,8 +144,8 @@ namespace My_Robot_Space {
 
 
     // Function to generate all possible next moves
-    void generate_all_possible_next_moves(unsigned NS, unsigned EW, std::pair<unsigned, unsigned> my_current_position,
-            std::pair<unsigned, unsigned> my_destinaniton, std::list<My_Robot_Space::Slots_Occupancy> grid_occupancy);
+    std::list<TreeNode*> generate_all_possible_next_moves(unsigned NS, unsigned EW, TreeNode *parent,
+        std::pair<unsigned, unsigned> my_destinaniton, std::list<Slots_Occupancy> grid_occupancy);
 
 
     // Function to generate the occupancy state of the grid for time t

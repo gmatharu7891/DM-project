@@ -15,23 +15,31 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
     std::cout << "Returns the shortest path " << std::endl;
     std::cout << "My robot: " << my_robot << std::endl;
     std::cout << "My robot initial position: X: " << robot_in_initial_situation.find(my_robot)->second.first << "; Y: " << robot_in_initial_situation.find(my_robot)->second.second << std::endl;
-    
-    // Start the navigation
-    time_t = 0;
-    
-    // Initialize the root of the tree
-    struct TreeNode *root;
-    root = new TreeNode;
-    root->state = Robot_Command_Type::idle;      
-    root->slots_occupied[robot_in_initial_situation.find(my_robot)->second] = Slot_Occupancy_Type::full;
-    
-    
-    // Populate the children (build up the tree) every time check if destination is reached
-    
-    
-    /*for (auto elem : robot_in_initial_situation) {
-        std::cout << elem.first << ":ID " << elem.second.first << ":x " << elem.second.second << ":y \n";
-    }*/
+
+    if (other_robots_commands.empty()) {
+        std::cout << "Grid is empty, path is definitely free" << std::endl;
+    } else { // Need BFS tree to find shortest path
+        // Start the navigation
+        time_t t = 0;
+
+        // Initialize the root of the tree
+        struct TreeNode *root;
+        root = new TreeNode;
+        root->state = Robot_Command_Type::idle;
+        root->slots_occupied[robot_in_initial_situation.find(my_robot)->second] = Slot_Occupancy_Type::full;
+        root->level = t;
+        root->parent = NULL;
+
+        // Populate the children (build up the tree) every time check if destination is reached
+        std::list<Slots_Occupancy> previous_occupancy;
+        std::list<Slots_Occupancy> grid_occupancy_0 = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
+        
+
+
+        /*for (auto elem : robot_in_initial_situation) {
+            std::cout << elem.first << ":ID " << elem.second.first << ":x " << elem.second.second << ":y \n";
+        }*/
+    }
 
     return 12;
 }
@@ -179,9 +187,9 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
 
 // Function to generate all possible next moves
 
-void generate_all_possible_next_moves(unsigned NS, unsigned EW, std::pair<unsigned, unsigned> my_current_position,
-        std::pair<unsigned, unsigned> my_destinaniton, std::list<My_Robot_Space::Slots_Occupancy> grid_occupancy) {
-
+std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_moves(unsigned NS, unsigned EW, TreeNode *parent,
+        std::pair<unsigned, unsigned> my_destinaniton, std::list<Slots_Occupancy> grid_occupancy) {
+        
     // ...
 }
 
