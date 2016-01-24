@@ -31,32 +31,39 @@ namespace My_Robot_Space {
     // These are the commands which can be sent to the robots: accelerate into a direction, or stop
     // ... plus some extra (idle, moving_E, moving_N, moving_W, moving_S) for sake of implementation of some functions
     // ... NOTE!!! extra command can not be directly sent to robots, we don't put them in other_robots_commands list
-
     enum class Robot_Command_Type : char {
         acc_E, acc_N, acc_W, acc_S, stop, idle, moving_E, moving_N, moving_W, moving_S
     };
 
-    // These are the types of slot occupancy
-
+    // These are the types of slot occupancy. e_1_2 means that the east half of the slot is occupied etc.
     enum class Slot_Occupancy_Type : char {
         full, e_1_2, w_1_2, e_1_4, w_1_4, n_1_4, s_1_4, e_3_4, w_3_4, n_3_4, s_3_4, n_1_8, n_3_8, n_5_8, n_7_8, s_1_8, s_3_8, s_5_8, s_7_8
     };
 
+    // Structure to capture what parts of the slots are currently occupied by robot r (and where is this robot currently going))
     struct Slots_Occupancy {
         Robot_ID_t r;
         Robot_Command_Type cmd;
-        std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type>  slots_occupied;
+        std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied;
     };
 
+    // Commands sent to robot
     struct Robot_Command {
         time_t t;
         Robot_ID_t r;
         Robot_Command_Type cmd;
     };
+    
+    // Tree structure. Nodes capture state of our robot on the grid
+    struct TreeNode {
+        Robot_Command_Type state;
+        std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied;
+        std::list<TreeNode*> children;
+        // time_t level;
+    };
 
 
-    // This function must be implemented:
-
+    // This function returns the time of shortest path and populates the p_my_robots_commands list:
     time_t move_a_robot(unsigned gridsize_NS, unsigned gridsize_EW,
             const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation,
             const std::list< Robot_Command > & other_robots_commands,
@@ -67,7 +74,7 @@ namespace My_Robot_Space {
     // Everything happens on a NS by EW grid.
 
     // Before time interval 0, the robot on grid slot with coordinate (x,y) in {0,...,EW-1}x{0,...,NS-1} is:
-    //                robot_in_initial_situation[robot_id]]
+    //                robot_in_initial_situation[robot_id]
 
     // The commands controlling the  robots are in ``other_robots_commands''.
     // Promise 1: This is sorted according to time (non-decreasing).
@@ -129,7 +136,6 @@ namespace My_Robot_Space {
      * 
      * IF slow robot accelerates south or north, ...
      * ... it has to move normally for 3*x seconds before being stopped (1/8 + 1/4 + 1/4 + 1/4 + 1/8 = 1 - no problem, robot occupies full slot).
-     * 
      */
     // 
     void generate_other_robots_commands(unsigned number_of_robots, unsigned NS, unsigned EW, std::list<Robot_Command> other_robots_commands,
@@ -149,19 +155,18 @@ namespace My_Robot_Space {
     // Render the whole process
     void render(std::list<Robot_Command> other_robots_commands, std::list< Robot_Command > my_robots_commands,
             std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation);
-    
-    
+
+
     //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤Additional functions¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤//
-    
+
     bool is_fast(Robot_ID_t r);
-    
-    std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> apply_command_on_idle_position(Robot_ID_t r, 
+
+    std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> apply_command_on_idle_position(Robot_ID_t r,
             Robot_Command_Type cmd, std::pair<unsigned, unsigned> init_pos);
-    
-    std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> move_robot_normally_or_stop(Robot_ID_t r, 
+
+    std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> move_robot_normally_or_stop(Robot_ID_t r,
             Robot_Command_Type current_cmd, Robot_Command_Type previous_cmd, std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied);
     
-
 }
 
 #endif	/* ROBOT_H */

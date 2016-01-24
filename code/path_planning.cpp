@@ -12,17 +12,26 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
         unsigned x_destination, unsigned y_destination,
         std::list< Robot_Command > *p_my_robots_commands) {
 
-    std::cout << "returns the shortest path " << std::endl;
-
-    for (auto elem : robot_in_initial_situation) {
-        std::cout << elem.first << ":ID " << elem.second.first << ":x " << elem.second.second << ":y \n";
-    }
-
-
-
-
-
+    std::cout << "Returns the shortest path " << std::endl;
     std::cout << "My robot: " << my_robot << std::endl;
+    std::cout << "My robot initial position: X: " << robot_in_initial_situation.find(my_robot)->second.first << "; Y: " << robot_in_initial_situation.find(my_robot)->second.second << std::endl;
+    
+    // Start the navigation
+    time_t = 0;
+    
+    // Initialize the root of the tree
+    struct TreeNode *root;
+    root = new TreeNode;
+    root->state = Robot_Command_Type::idle;      
+    root->slots_occupied[robot_in_initial_situation.find(my_robot)->second] = Slot_Occupancy_Type::full;
+    
+    
+    // Populate the children (build up the tree) every time check if destination is reached
+    
+    
+    /*for (auto elem : robot_in_initial_situation) {
+        std::cout << elem.first << ":ID " << elem.second.first << ":x " << elem.second.second << ":y \n";
+    }*/
 
     return 12;
 }

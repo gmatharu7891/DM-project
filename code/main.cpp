@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     std::map<Robot_ID_t, std::pair<unsigned,unsigned>> robot_in_initial_situation;
     
     robot_in_initial_situation[other_robot_id] = other_robot_init_2;
-    
+    robot_in_initial_situation[my_robot_id] = other_robot_init_1;
 
     std::list< Robot_Command > other_robots_commands;
 
@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
 
     first_command_testinf->t = 0;
     first_command_testinf->r = 1;
-    first_command_testinf->cmd = Robot_Command_Type::acc_E;
+    first_command_testinf->cmd = Robot_Command_Type::acc_N;
 
     struct Robot_Command *second_command_testing;
 
@@ -104,13 +104,27 @@ int main(int argc, char** argv) {
     
     robot_in_initial_situation_testing[1] = other_robot_init_testing;
     
-    std::list<Slots_Occupancy> previous_grid_occupancy = grid_occupancy_t(0, other_robots_commands_testing, previous_occupancy, robot_in_initial_situation_testing);
+    // ################## Let's rock ########################## //
+    
+    std::list<Slots_Occupancy> grid_occupancy_0 = grid_occupancy_t(0, other_robots_commands_testing, previous_occupancy, robot_in_initial_situation_testing);
     
     std::cout << "\nNext move, compute next occupancy\n" << std::endl;
     
-    std::list<Slots_Occupancy> current_grid_occupancy = grid_occupancy_t(1, other_robots_commands_testing, previous_grid_occupancy, robot_in_initial_situation_testing);
+    std::list<Slots_Occupancy> grid_occupancy_1 = grid_occupancy_t(1, other_robots_commands_testing, grid_occupancy_0, robot_in_initial_situation_testing);
     
-    for (auto& robot:current_grid_occupancy ){
+    std::cout << "\nNext move, compute next occupancy\n" << std::endl;
+    
+    std::list<Slots_Occupancy> grid_occupancy_2 = grid_occupancy_t(2, other_robots_commands_testing, grid_occupancy_1, robot_in_initial_situation_testing);
+    
+    std::cout << "\nNext move, compute next occupancy\n" << std::endl;
+    
+    std::list<Slots_Occupancy> grid_occupancy_3 = grid_occupancy_t(3, other_robots_commands_testing, grid_occupancy_2, robot_in_initial_situation_testing);
+    
+    std::cout << "\nNext move, compute next occupancy\n" << std::endl;
+    
+    std::list<Slots_Occupancy> grid_occupancy_4 = grid_occupancy_t(4, other_robots_commands_testing, grid_occupancy_3, robot_in_initial_situation_testing);
+    
+    for (auto& robot:grid_occupancy_4 ){
         std::cout << "Robot with ID: " << robot.r << std::endl;
         std::cout << "Is executing command: " << static_cast<int>(robot.cmd) << std::endl;
         std::cout << "Slots occupied:" << std::endl;
