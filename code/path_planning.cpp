@@ -93,27 +93,27 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
 
     } else { // there is a previous_occupancy
         // for element in previous_occupancy
-        for (auto& occupancy : previous_occupancy) {
+        for (auto& prev_occupancy : previous_occupancy) {
             // if for element.r there are new command for current t in other_robot_commands
             bool found_new_command = false;
             for (auto& cmd : other_robots_commands) {
                 // only interested in current t
                 if (cmd.t == t) {
                     // check the robot ID
-                    if (cmd.r == occupancy.r) {
+                    if (cmd.r == prev_occupancy.r) {
                         // new command found for this robot
                         // IMPORTANT: that means that robot can either be stopped or has been stopped before
                         found_new_command = true;
 
                         struct Slots_Occupancy *slots_occupancy;
                         slots_occupancy = new Slots_Occupancy;
-                        slots_occupancy->r = occupancy.r;
+                        slots_occupancy->r = prev_occupancy.r;
                         slots_occupancy->cmd = cmd.cmd;
                         if (cmd.cmd == Robot_Command_Type::stop) {
-                            slots_occupancy->slots_occupied = move_robot_normally_or_stop(occupancy.r, cmd.cmd, occupancy.slots_occupied);
+                            slots_occupancy->slots_occupied = move_robot_normally_or_stop(prev_occupancy.r, cmd.cmd, prev_occupancy.cmd, prev_occupancy.slots_occupied);
                         } else {
                             // Case where robot is idle before (NOT between the slots) and can change direction
-                            slots_occupancy->slots_occupied = apply_command_on_idle_position(occupancy.r, cmd.cmd, occupancy.slots_occupied.begin()->first);
+                            slots_occupancy->slots_occupied = apply_command_on_idle_position(prev_occupancy.r, cmd.cmd, prev_occupancy.slots_occupied.begin()->first);
                         }
 
                         // (x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy 
@@ -126,9 +126,9 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
                 //apply normal movement to the previous occupancy state to generate a new one  
                 struct Slots_Occupancy *slots_occupancy;
                 slots_occupancy = new Slots_Occupancy;
-                slots_occupancy->r = occupancy.r;
+                slots_occupancy->r = prev_occupancy.r;
                 Robot_Command_Type new_cmd;
-                switch (occupancy.cmd) {
+                switch (prev_occupancy.cmd) {
                     case Robot_Command_Type::acc_E:
                     case Robot_Command_Type::moving_E:
                         new_cmd = Robot_Command_Type::moving_E;
@@ -147,7 +147,7 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
                         break;
                 }
                 slots_occupancy->cmd = new_cmd;
-                slots_occupancy->slots_occupied = move_robot_normally_or_stop(occupancy.r, new_cmd, occupancy.slots_occupied);
+                slots_occupancy->slots_occupied = move_robot_normally_or_stop(prev_occupancy.r, new_cmd, prev_occupancy.cmd, prev_occupancy.slots_occupied);
                 //(x,y,occupancy_type, ID, cmd) - > add as an element to the current_occupancy 
                 current_occupancy.push_back(*slots_occupancy);
             }
@@ -343,13 +343,13 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
     return slots_occupied;
 }
 
-std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_Robot_Space::move_robot_normally_or_stop(Robot_ID_t r, Robot_Command_Type cmd,
-        std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied) {
+std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_Robot_Space::move_robot_normally_or_stop(Robot_ID_t r, Robot_Command_Type current_cmd,
+        Robot_Command_Type previous_cmd, std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied) {
 
     std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> new_slots_occupied;
 
     if (is_fast(r)) { // move fast robot
-        switch (cmd) {
+        switch (current_cmd) {
             case Robot_Command_Type::moving_E:
             {
                 std::cout << "Move fast robot normally to the east" << std::endl;
@@ -416,12 +416,52 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
                 break;
             case Robot_Command_Type::stop:
             {
-                std::cout << "Stop the robot" << std::endl;
+                std::cout << "Stop the fast robot" << std::endl;
+                switch (previous_cmd) {
+                    case Robot_Command_Type::acc_E: // Fast robot moving east can be stopped right after acceleration
+                    case Robot_Command_Type::moving_E:
+                    {
+                        for (auto& slot : slots_occupied) {
+                            if (slot.second == Slot_Occupancy_Type::w_1_2) {
+                                new_slots_occupied[slot.first] = Slot_Occupancy_Type::full;
+                            }
+                        }
+                    }
+                        break;
+                    case Robot_Command_Type::acc_W: // Fast robot moving west can be stopped right after acceleration
+                    case Robot_Command_Type::moving_W:
+                    {
+                        for (auto& slot : slots_occupied) {
+                            if (slot.second == Slot_Occupancy_Type::e_1_2) {
+                                new_slots_occupied[slot.first] = Slot_Occupancy_Type::full;
+                            }
+                        }
+                    }
+                        break;
+                    case Robot_Command_Type::moving_N:
+                    {
+                        for (auto& slot : slots_occupied) {
+                            if (slot.second == Slot_Occupancy_Type::s_3_4) {
+                                new_slots_occupied[slot.first] = Slot_Occupancy_Type::full;
+                            }
+                        }
+                    }
+                        break;
+                    case Robot_Command_Type::moving_S:
+                    {
+                        for (auto& slot : slots_occupied) {
+                            if (slot.second == Slot_Occupancy_Type::n_3_4) {
+                                new_slots_occupied[slot.first] = Slot_Occupancy_Type::full;
+                            }
+                        }
+                    }
+                        break;
+                }
             }
                 break;
         }
     } else { // move slow robot
-        switch (cmd) {
+        switch (current_cmd) {
             case Robot_Command_Type::moving_E:
             {
                 std::cout << "Move slow robot normally to the east" << std::endl;
@@ -546,7 +586,45 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
                 break;
             case Robot_Command_Type::stop:
             {
-                std::cout << "Stop the robot" << std::endl;
+                std::cout << "Stop the slow robot" << std::endl;
+                switch (previous_cmd) {
+                    case Robot_Command_Type::moving_E:
+                    {
+                        for (auto& slot : slots_occupied) {
+                            if (slot.second == Slot_Occupancy_Type::w_3_4) {
+                                new_slots_occupied[slot.first] = Slot_Occupancy_Type::full;
+                            }
+                        }
+                    }
+                        break;
+                    case Robot_Command_Type::moving_W:
+                    {
+                        for (auto& slot : slots_occupied) {
+                            if (slot.second == Slot_Occupancy_Type::e_3_4) {
+                                new_slots_occupied[slot.first] = Slot_Occupancy_Type::full;
+                            }
+                        }
+                    }
+                        break;
+                    case Robot_Command_Type::moving_N:
+                    {
+                        for (auto& slot : slots_occupied) {
+                            if (slot.second == Slot_Occupancy_Type::s_7_8) {
+                                new_slots_occupied[slot.first] = Slot_Occupancy_Type::full;
+                            }
+                        }
+                    }
+                        break;
+                    case Robot_Command_Type::moving_S:
+                    {
+                        for (auto& slot : slots_occupied) {
+                            if (slot.second == Slot_Occupancy_Type::n_7_8) {
+                                new_slots_occupied[slot.first] = Slot_Occupancy_Type::full;
+                            }
+                        }
+                    }
+                        break;
+                }
             }
                 break;
         }

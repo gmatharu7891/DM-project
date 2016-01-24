@@ -158,11 +158,8 @@ namespace My_Robot_Space {
     std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> apply_command_on_idle_position(Robot_ID_t r, 
             Robot_Command_Type cmd, std::pair<unsigned, unsigned> init_pos);
     
-    std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> apply_command_on_positions(Robot_ID_t r, 
-            Robot_Command_Type cmd, std::pair<unsigned, unsigned> init_pos);
-    
     std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> move_robot_normally_or_stop(Robot_ID_t r, 
-            Robot_Command_Type cmd, std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied);
+            Robot_Command_Type current_cmd, Robot_Command_Type previous_cmd, std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied);
     
 
 }
