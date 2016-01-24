@@ -31,16 +31,19 @@ namespace My_Robot_Space {
     // These are the commands which can be sent to the robots: accelerate into a direction, or stop
     // ... plus some extra (idle, moving_E, moving_N, moving_W, moving_S) for sake of implementation of some functions
     // ... NOTE!!! extra command can not be directly sent to robots, we don't put them in other_robots_commands list
+
     enum class Robot_Command_Type : char {
         acc_E, acc_N, acc_W, acc_S, stop, idle, moving_E, moving_N, moving_W, moving_S
     };
 
     // These are the types of slot occupancy. e_1_2 means that the east half of the slot is occupied etc.
+
     enum class Slot_Occupancy_Type : char {
         full, e_1_2, w_1_2, e_1_4, w_1_4, n_1_4, s_1_4, e_3_4, w_3_4, n_3_4, s_3_4, n_1_8, n_3_8, n_5_8, n_7_8, s_1_8, s_3_8, s_5_8, s_7_8
     };
 
     // Structure to capture what parts of the slots are currently occupied by robot r (and where is this robot currently going))
+
     struct Slots_Occupancy {
         Robot_ID_t r;
         Robot_Command_Type cmd;
@@ -48,13 +51,15 @@ namespace My_Robot_Space {
     };
 
     // Commands sent to robot
+
     struct Robot_Command {
         time_t t;
         Robot_ID_t r;
         Robot_Command_Type cmd;
     };
-    
+
     // Tree structure. Nodes capture state of our robot on the grid
+
     struct TreeNode {
         Robot_Command_Type state;
         std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied;
@@ -143,8 +148,8 @@ namespace My_Robot_Space {
 
 
     // Function to generate all possible next moves
-    std::list<TreeNode*> generate_all_possible_next_moves(unsigned NS, unsigned EW, TreeNode *parent,
-        std::pair<unsigned, unsigned> my_destinaniton, std::list<Slots_Occupancy> grid_occupancy);
+    std::list<TreeNode*> generate_all_possible_next_moves(Robot_ID_t r, unsigned NS, unsigned EW, TreeNode *parent,
+            std::pair<unsigned, unsigned> my_destinaniton, std::list<Slots_Occupancy> grid_occupancy);
 
 
     // Function to generate the occupancy state of the grid for time t
@@ -165,11 +170,15 @@ namespace My_Robot_Space {
     // Returns slots occupied after robot accelerates
     std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> apply_command_on_idle_position(Robot_ID_t r,
             Robot_Command_Type cmd, std::pair<unsigned, unsigned> init_pos);
-    
+
     // Returns slots occupied after robot moves normally or stops
     std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> move_robot_normally_or_stop(Robot_ID_t r,
             Robot_Command_Type current_cmd, Robot_Command_Type previous_cmd, std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied);
-    
+
+    // Returns legal next states (commands) of the robot
+    std::list<Robot_Command_Type> get_next_possible_states(Robot_ID_t r, Robot_Command_Type prev_state, 
+            std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> prev_slots_occupied);
+
 }
 
 #endif	/* ROBOT_H */

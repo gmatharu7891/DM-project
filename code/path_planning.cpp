@@ -41,7 +41,7 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
 
         while (!bfs_queue.empty()) {
             TreeNode *node_to_visit = bfs_queue.front();
-            std::list<TreeNode*> children = generate_all_possible_next_moves(gridsize_NS, gridsize_EW, node_to_visit,
+            std::list<TreeNode*> children = generate_all_possible_next_moves(my_robot, gridsize_NS, gridsize_EW, node_to_visit,
                     my_destination, current_occupancy);
             // Check if any of the children reached the goal, if so break;
 
@@ -97,6 +97,7 @@ void My_Robot_Space::generate_other_robots_commands(unsigned number_of_robots, u
 
 // Function to generate the occupancy state of the grid for time t
 // function assumes the commands in other_robot_commands are legal!
+
 std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robot_ID_t t, std::list<Robot_Command> other_robots_commands,
         std::list<Slots_Occupancy> previous_occupancy, const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation) {
 
@@ -199,19 +200,21 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
 
 // Function to generate all possible next moves
 // Basically it outputs nice new level of the decision tree
-std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_moves(unsigned NS, unsigned EW, TreeNode *parent,
+
+std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_moves(Robot_ID_t r, unsigned NS, unsigned EW, TreeNode *parent,
         std::pair<unsigned, unsigned> my_destinaniton, std::list<Slots_Occupancy> grid_occupancy) {
     std::list<TreeNode*> children;
 
+    std::list<Robot_Command_Type> next_possible_states = get_next_possible_states(r, parent->state, parent->slots_occupied);
     // Determine where can we move next after parent.state (what commands would be legal to execute)
     // .. take into account grid size and current position, and legal state transitions (robots movement specifics)
-    
-    
-    
+
+
+
     // For each legal move, estimate what slots will be occupied after the execution (map of slots occupied)
-    
+
     // Eliminate the moves, which lead to collisions with other robots based on the grid_occupancy
-    
+
     // For each remaining legal move create a TreeNode object add it to the output list
 
     return children;
@@ -219,6 +222,7 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
 
 
 // Render the whole process
+
 void My_Robot_Space::render(std::list<Robot_Command> other_robots_commands, std::list< Robot_Command > my_robots_commands,
         std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation) {
 
@@ -254,6 +258,7 @@ void My_Robot_Space::render(std::list<Robot_Command> other_robots_commands, std:
 }
 
 // Determine type of the robot
+
 bool My_Robot_Space::is_fast(Robot_ID_t r) {
     if (r <= 127)
         return true;
@@ -261,6 +266,7 @@ bool My_Robot_Space::is_fast(Robot_ID_t r) {
 }
 
 // Returns slots occupied after robot accelerates
+
 std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_Robot_Space::apply_command_on_idle_position(Robot_ID_t r,
         Robot_Command_Type cmd, std::pair<unsigned, unsigned> init_pos) {
 
@@ -387,6 +393,7 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
 }
 
 // Returns slots occupied after robot moves normally or stops
+
 std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_Robot_Space::move_robot_normally_or_stop(Robot_ID_t r, Robot_Command_Type current_cmd,
         Robot_Command_Type previous_cmd, std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied) {
 
@@ -674,4 +681,127 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
         }
     }
     return new_slots_occupied;
+}
+
+std::list<My_Robot_Space::Robot_Command_Type> My_Robot_Space::get_next_possible_states(Robot_ID_t r, Robot_Command_Type prev_state,
+        std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> prev_slots_occupied) {
+
+    std::list<Robot_Command_Type> next_legal_states;
+
+    if (is_fast(r)) {
+        switch (prev_state) {
+            case Robot_Command_Type::stop:
+                next_legal_states.push_back(Robot_Command_Type::acc_E);
+                next_legal_states.push_back(Robot_Command_Type::acc_W);
+                next_legal_states.push_back(Robot_Command_Type::acc_N);
+                next_legal_states.push_back(Robot_Command_Type::acc_S);
+                break;
+            case Robot_Command_Type::acc_E:
+                next_legal_states.push_back(Robot_Command_Type::stop);
+                next_legal_states.push_back(Robot_Command_Type::moving_E);
+                break;
+            case Robot_Command_Type::acc_W:
+                next_legal_states.push_back(Robot_Command_Type::stop);
+                next_legal_states.push_back(Robot_Command_Type::moving_W);
+                break;
+            case Robot_Command_Type::acc_N:
+                next_legal_states.push_back(Robot_Command_Type::moving_E);
+                break;
+            case Robot_Command_Type::acc_S:
+                next_legal_states.push_back(Robot_Command_Type::moving_S);
+                break;
+            case Robot_Command_Type::moving_E:
+                next_legal_states.push_back(Robot_Command_Type::moving_E);
+                next_legal_states.push_back(Robot_Command_Type::stop);
+                break;
+            case Robot_Command_Type::moving_W:
+                next_legal_states.push_back(Robot_Command_Type::moving_W);
+                next_legal_states.push_back(Robot_Command_Type::stop);
+                break;
+            case Robot_Command_Type::moving_N:
+                next_legal_states.push_back(Robot_Command_Type::moving_N);
+                // Make sure that moving_N was executed odd number of time before stopping
+                for (auto& slot : prev_slots_occupied) {
+                    if (slot.second == Slot_Occupancy_Type::s_3_4 || slot.second == Slot_Occupancy_Type::n_1_4) {
+                        next_legal_states.push_back(Robot_Command_Type::stop);
+                        break;
+                    }
+                }
+                break;
+            case Robot_Command_Type::moving_S:
+                next_legal_states.push_back(Robot_Command_Type::moving_S);
+                // Make sure that moving_S was executed odd number of time before stopping
+                for (auto& slot : prev_slots_occupied) {
+                    if (slot.second == Slot_Occupancy_Type::n_3_4 || slot.second == Slot_Occupancy_Type::s_1_4) {
+                        next_legal_states.push_back(Robot_Command_Type::stop);
+                        break;
+                    }
+                }
+                break;
+        }
+    } else {
+        switch (prev_state) {
+            case Robot_Command_Type::stop:
+                next_legal_states.push_back(Robot_Command_Type::acc_E);
+                next_legal_states.push_back(Robot_Command_Type::acc_W);
+                next_legal_states.push_back(Robot_Command_Type::acc_N);
+                next_legal_states.push_back(Robot_Command_Type::acc_S);
+                break;
+            case Robot_Command_Type::acc_E:
+                next_legal_states.push_back(Robot_Command_Type::moving_E);
+                break;
+            case Robot_Command_Type::acc_W:
+                next_legal_states.push_back(Robot_Command_Type::moving_W);
+                break;
+            case Robot_Command_Type::acc_N:
+                next_legal_states.push_back(Robot_Command_Type::moving_E);
+                break;
+            case Robot_Command_Type::acc_S:
+                next_legal_states.push_back(Robot_Command_Type::moving_S);
+                break;
+            case Robot_Command_Type::moving_E:
+                next_legal_states.push_back(Robot_Command_Type::moving_E);
+                // Make sure that moving_E was executed odd number of times before stopping
+                for (auto& slot : prev_slots_occupied) {
+                    if (slot.second == Slot_Occupancy_Type::w_3_4 || slot.second == Slot_Occupancy_Type::e_1_4) {
+                        next_legal_states.push_back(Robot_Command_Type::stop);
+                        break;
+                    }
+                }
+                break;
+            case Robot_Command_Type::moving_W:
+                next_legal_states.push_back(Robot_Command_Type::moving_W);
+                // Make sure that moving_W was executed odd number of times before stopping
+                for (auto& slot : prev_slots_occupied) {
+                    if (slot.second == Slot_Occupancy_Type::e_3_4 || slot.second == Slot_Occupancy_Type::w_1_4) {
+                        next_legal_states.push_back(Robot_Command_Type::stop);
+                        break;
+                    }
+                }
+                break;
+            case Robot_Command_Type::moving_N:
+                next_legal_states.push_back(Robot_Command_Type::moving_N);
+                // Make sure that moving_N was executed 3*x number of time before stopping
+                for (auto& slot : prev_slots_occupied) {
+                    if (slot.second == Slot_Occupancy_Type::s_7_8 || slot.second == Slot_Occupancy_Type::n_1_8) {
+                        next_legal_states.push_back(Robot_Command_Type::stop);
+                        break;
+                    }
+                }
+                break;
+            case Robot_Command_Type::moving_S:
+                next_legal_states.push_back(Robot_Command_Type::moving_S);
+                // Make sure that moving_S was executed 3*x number of time before stopping
+                for (auto& slot : prev_slots_occupied) {
+                    if (slot.second == Slot_Occupancy_Type::n_7_8 || slot.second == Slot_Occupancy_Type::s_1_8) {
+                        next_legal_states.push_back(Robot_Command_Type::stop);
+                        break;
+                    }
+                }
+                break;
+        }
+    }
+
+    return next_legal_states;
+
 }
