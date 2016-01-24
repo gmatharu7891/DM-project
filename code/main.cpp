@@ -72,14 +72,53 @@ int main(int argc, char** argv) {
 
     std::cout << the_time << std::endl;
     
-    std::list<Slots_Occupancy> previous_occupancy;
-
+    
     
     std::cout << "\nGrid occupancy: " << std::endl;
     // Testing the function
-    grid_occupancy_t(0, other_robots_commands, previous_occupancy, robot_in_initial_situation);
-    std::list< Robot_Command > my_robots_commands;
-    // render(other_robots_commands, my_robots_commands, robot_in_initial_situation);
+    std::list<Slots_Occupancy> previous_occupancy;
+    std::list< Robot_Command > other_robots_commands_testing;
+
+    struct Robot_Command *first_command_testinf;
+
+    first_command_testinf = new Robot_Command;
+
+    first_command_testinf->t = 0;
+    first_command_testinf->r = 1;
+    first_command_testinf->cmd = Robot_Command_Type::acc_E;
+
+    struct Robot_Command *second_command_testing;
+
+    second_command_testing = new Robot_Command;
+
+    second_command_testing->t = 4;
+    second_command_testing->r = 1;
+    second_command_testing->cmd = Robot_Command_Type::stop;
+
+    other_robots_commands_testing.push_back(*first_command_testinf);
+    other_robots_commands_testing.push_back(*second_command_testing);
+    
+    std::pair <unsigned, unsigned> other_robot_init_testing (0,0);
+        
+    std::map<Robot_ID_t, std::pair<unsigned,unsigned>> robot_in_initial_situation_testing;
+    
+    robot_in_initial_situation_testing[1] = other_robot_init_testing;
+    
+    std::list<Slots_Occupancy> previous_grid_occupancy = grid_occupancy_t(0, other_robots_commands_testing, previous_occupancy, robot_in_initial_situation_testing);
+    
+    std::cout << "\nNext move, compute next occupancy\n" << std::endl;
+    
+    std::list<Slots_Occupancy> current_grid_occupancy = grid_occupancy_t(1, other_robots_commands_testing, previous_grid_occupancy, robot_in_initial_situation_testing);
+    
+    for (auto& robot:current_grid_occupancy ){
+        std::cout << "Robot with ID: " << robot.r << std::endl;
+        std::cout << "Is executing command: " << static_cast<int>(robot.cmd) << std::endl;
+        std::cout << "Slots occupied:" << std::endl;
+        for (auto& slot: robot.slots_occupied){
+            std::cout << "X: " << slot.first.first << "; Y: " << slot.first.second << std::endl;
+            std::cout << "Occupancy type: " << static_cast<int>(slot.second) << std::endl;
+        }
+    }
 
     
     return 0;

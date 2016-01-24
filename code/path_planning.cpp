@@ -74,8 +74,8 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
                 init_pos.first = robot_in_initial_situation.find(el.r)->second.first;
                 init_pos.second = robot_in_initial_situation.find(el.r)->second.second;
 
-                std::cout << "Robot ID: " << el.r << " X: " << init_pos.first << " Y: " << init_pos.second << std::endl;
-                std::cout << "Command being executed: " << static_cast<int> (el.cmd) << std::endl;
+                //std::cout << "Robot ID: " << el.r << " X: " << init_pos.first << " Y: " << init_pos.second << std::endl;
+                //std::cout << "Command being executed: " << static_cast<int> (el.cmd) << std::endl;
 
                 // apply the command type on the initial position and get the occupancy type and occupied slots after the move is done  
                 struct Slots_Occupancy *slots_occupancy;
@@ -123,6 +123,7 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
             }
             //else: no new cmds, robot moves normally
             if (!found_new_command) {
+                std::cout << "No new command for this robot at this time" << std::endl;
                 //apply normal movement to the previous occupancy state to generate a new one  
                 struct Slots_Occupancy *slots_occupancy;
                 slots_occupancy = new Slots_Occupancy;
@@ -155,9 +156,9 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
     }
 
     std::cout << "Size of current occupancy list: " << current_occupancy.size() << std::endl;
-    for (auto elem : current_occupancy) {
+    /*for (auto elem : current_occupancy) {
         std::cout << "Should be 3: " << elem.slots_occupied.begin()->first.second << std::endl;
-    }
+    }*/
 
 
     return current_occupancy;
@@ -236,7 +237,7 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
                 slots_occupied[init_pos] = Slot_Occupancy_Type::e_1_2;
                 slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::w_1_2;
 
-                std::cout << "Should be 3: " << static_cast<int> ((slots_occupied.begin()->first.second)) << std::endl;
+                //std::cout << "Should be 3: " << static_cast<int> ((slots_occupied.begin()->first.second)) << std::endl;
             }
                 break;
             case Robot_Command_Type::acc_N:
