@@ -145,12 +145,12 @@ namespace My_Robot_Space {
     // 
     void generate_other_robots_commands(unsigned number_of_robots, unsigned NS, unsigned EW, std::list<Robot_Command> other_robots_commands,
             const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation);
-
+    // Generate sample other robot commands
+    std::list<Robot_Command> generate_sample_other_robots_commands(char direction, int robot_id, char movement);
 
     // Function to generate all possible next moves
-    std::list<TreeNode*> generate_all_possible_next_moves(Robot_ID_t r, unsigned NS, unsigned EW, TreeNode *parent,
-            std::pair<unsigned, unsigned> my_destinaniton, std::list<Slots_Occupancy> grid_occupancy);
-
+    std::list<TreeNode*> generate_all_possible_next_moves(Robot_ID_t r, unsigned NS, unsigned EW, TreeNode *parent,std::pair<unsigned, unsigned> my_destinaniton, std::list<Slots_Occupancy> grid_occupancy);
+    
 
     // Function to generate the occupancy state of the grid for time t
     std::list<Slots_Occupancy> grid_occupancy_t(Robot_ID_t t, std::list<Robot_Command> other_robots_commands, std::list<Slots_Occupancy> previous_occupancy,
