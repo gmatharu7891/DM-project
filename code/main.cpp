@@ -66,12 +66,9 @@ int main(int argc, char** argv) {
 
 
     My_Robot_Space::time_t the_time = move_a_robot(NS, EW, robot_in_initial_situation,
-            other_robots_commands,
-            my_robot_id, x_destination, y_destination,
-            p_my_robots_commands);
+            other_robots_commands, my_robot_id, other_robot_init_2, p_my_robots_commands);
 
     std::cout << the_time << std::endl;
-    
     
     
     std::cout << "\nGrid occupancy: " << std::endl;

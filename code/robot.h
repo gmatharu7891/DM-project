@@ -68,8 +68,7 @@ namespace My_Robot_Space {
     time_t move_a_robot(unsigned gridsize_NS, unsigned gridsize_EW,
             const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation,
             const std::list< Robot_Command > & other_robots_commands,
-            Robot_ID_t my_robot,
-            unsigned x_destination, unsigned y_destination,
+            Robot_ID_t my_robot, std::pair<unsigned, unsigned> my_destination,
             std::list< Robot_Command > *p_my_robots_commands);
 
     // Everything happens on a NS by EW grid.
@@ -82,7 +81,7 @@ namespace My_Robot_Space {
     // Promise 2: This does not lead to collisions of the other robots among themselves.
 
     // The robot which must be moved between the other robots is the one with ID ``my_robot''.
-    // It should be moved to position  (x_destination, y_destination) as quickly as possible, without colliding with any other robots.
+    // It should be moved to position at my_destination as quickly as possible, without colliding with any other robots.
 
     // Put the commands into the list ``*p_my_robots_commands''.
     // Promise: That list is empty when the function is called. (So you can just append.)

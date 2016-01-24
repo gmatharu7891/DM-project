@@ -3,13 +3,14 @@
 #include <iostream>
 #include <unistd.h>
 #include <map>
+#include <queue>
 
 // Function to compute the shortest path
 
 My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsigned gridsize_EW,
         const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation,
         const std::list<Robot_Command>& other_robots_commands, Robot_ID_t my_robot,
-        unsigned x_destination, unsigned y_destination,
+        std::pair<unsigned, unsigned> my_destination,
         std::list< Robot_Command > *p_my_robots_commands) {
 
     std::cout << "Returns the shortest path " << std::endl;
@@ -32,13 +33,33 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
 
         // Populate the children (build up the tree) every time check if destination is reached
         std::list<Slots_Occupancy> previous_occupancy;
-        std::list<Slots_Occupancy> grid_occupancy_0 = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
+        std::list<Slots_Occupancy> current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
+
+        // -------------------------------- BFS ------------------------------------------------ //
+        std::queue<TreeNode*> bfs_queue;
+        bfs_queue.push(root);
+
+        while (!bfs_queue.empty()) {
+            TreeNode *node_to_visit = bfs_queue.front();
+            std::list<TreeNode*> children = generate_all_possible_next_moves(gridsize_NS, gridsize_EW, node_to_visit,
+                    my_destination, current_occupancy);
+            // Check if any of the children reached the goal, if so break;
+            
+            // Otherwise:
+            previous_occupancy = current_occupancy;
+            t++;
+            current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
+            
+            if (!children.empty()) {
+                for (auto& child_node : children) {
+                    bfs_queue.push(child_node);
+                }
+            }else{
+                break; // Added for now for the sake of testing
+            }
+        }
         
-
-
-        /*for (auto elem : robot_in_initial_situation) {
-            std::cout << elem.first << ":ID " << elem.second.first << ":x " << elem.second.second << ":y \n";
-        }*/
+        // Reconstruct the path, populate the list of my robot commands
     }
 
     return 12;
@@ -173,11 +194,6 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
     }
 
     std::cout << "Size of current occupancy list: " << current_occupancy.size() << std::endl;
-    /*for (auto elem : current_occupancy) {
-        std::cout << "Should be 3: " << elem.slots_occupied.begin()->first.second << std::endl;
-    }*/
-
-
     return current_occupancy;
 }
 
@@ -186,11 +202,13 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
 
 
 // Function to generate all possible next moves
-
 std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_moves(unsigned NS, unsigned EW, TreeNode *parent,
         std::pair<unsigned, unsigned> my_destinaniton, std::list<Slots_Occupancy> grid_occupancy) {
-        
-    // ...
+    std::list<TreeNode*> children;
+    
+    // TBA
+    
+    return children;
 }
 
 
