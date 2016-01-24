@@ -205,17 +205,55 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
         std::pair<unsigned, unsigned> my_destinaniton, std::list<Slots_Occupancy> grid_occupancy) {
     std::list<TreeNode*> children;
 
-    std::list<Robot_Command_Type> next_possible_states = get_next_possible_states(r, parent->state, parent->slots_occupied);
     // Determine where can we move next after parent.state (what commands would be legal to execute)
-    // .. take into account grid size and current position, and legal state transitions (robots movement specifics)
-
-
+    std::list<Robot_Command_Type> next_possible_states = get_next_possible_states(r, parent->state, parent->slots_occupied);
 
     // For each legal move, estimate what slots will be occupied after the execution (map of slots occupied)
+    for (auto& state : next_possible_states) {
+        std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_to_be_occupied;
+        if (state == Robot_Command_Type::stop || state == Robot_Command_Type::moving_E
+                || state == Robot_Command_Type::moving_N || state == Robot_Command_Type::moving_S
+                || state == Robot_Command_Type::moving_W) {
+            slots_to_be_occupied = move_robot_normally_or_stop(r, state, parent->state, parent->slots_occupied);
+        } else {
+            slots_to_be_occupied = apply_command_on_idle_position(r, state, parent->slots_occupied.begin()->first);
+        }
 
-    // Eliminate the moves, which lead to collisions with other robots based on the grid_occupancy
+        // Eliminate the moves that lead outside the grid
+        for (auto& slot_to_be_occupied : slots_to_be_occupied) {
+            if (slot_to_be_occupied.first.first >= EW || slot_to_be_occupied.first.second >= NS
+                    || slot_to_be_occupied.first.first < 0 || slot_to_be_occupied.first.second < 0) {
+                // Move outside the grid
+                break;
+            }
 
-    // For each remaining legal move create a TreeNode object add it to the output list
+            // Eliminate the moves, which lead to collisions with other robots based on the grid_occupancy
+            // Check for collisions with every robot one by one
+            bool collision = false;
+            for (auto& occupancy : grid_occupancy) {
+                if (!collision) {
+                    for (auto& occupied_slot : occupancy.slots_occupied) {
+                        // Smart function to check if robots can be in different parts of the same slot goes here
+                        // But we ain't have one yet so ...
+                        if (occupied_slot.first.first == slot_to_be_occupied.first.first ||
+                                occupied_slot.first.second == slot_to_be_occupied.first.second) {
+                            collision = true;
+                        }
+                    }
+                }
+            }
+
+            // For each remaining legal move create a TreeNode object add it to the output list
+            struct TreeNode *child;
+            child = new TreeNode;
+            child->state = state;
+            child->slots_occupied = slots_to_be_occupied;
+            child->level = parent->level++;
+            child->parent = parent;
+            
+            children.push_back(child);
+        }
+    }
 
     return children;
 }
