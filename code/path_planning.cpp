@@ -37,8 +37,6 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
 
             // Populate the children (build up the tree) every time check if destination is reached
             std::list<Slots_Occupancy> previous_occupancy;
-            // Start the navigation
-            time_t t = 0;
 
             // -------------------------------- BFS ------------------------------------------------ //
             std::queue<TreeNode*> bfs_queue;
@@ -47,14 +45,16 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
             TreeNode* leaf_of_the_shortest_path;
 
             while (!bfs_queue.empty()) {
-                std::cout << "\nDecision tree level (time): " << t << std::endl;
-                std::list<Slots_Occupancy> current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
                 TreeNode *node_to_visit = bfs_queue.front();
                 bfs_queue.pop();
+                time_t t = node_to_visit->level;
+                std::cout << "\nDecision tree level (time): " << t << std::endl;
+                std::list<Slots_Occupancy> current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
                 node_to_visit->children = generate_all_possible_next_moves(my_robot, gridsize_NS, gridsize_EW, node_to_visit,
                         my_destination, current_occupancy);
                 
                 // Check if any of the children reached the goal, if so break;
+                std::cout << "Node to be visited (state : time): " << static_cast<int>(node_to_visit->state) << " : " << node_to_visit->level << std::endl;
                 std::cout << "Number of children of current node: " << node_to_visit->children.size() << std::endl;
                 bool goal_reached = false;
                 for (auto& child : node_to_visit->children) {
@@ -292,8 +292,12 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
             child = new TreeNode;
             child->state = state;
             child->slots_occupied = slots_to_be_occupied;
-            time_t parent_time = parent->level;
-            child->level = parent_time++;
+            time_t parent_time = parent->level;            
+            if (parent->parent==NULL){
+                child->level = parent_time;
+            }else{
+                child->level = ++parent_time;
+            }        
             child->parent = parent;
 
             children.push_back(child);
@@ -310,7 +314,8 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
 bool My_Robot_Space::reached_the_goal(TreeNode* node, std::pair<unsigned, unsigned> goal) {
     // for slots occupied in node check if there are any goal slots
     for (auto& slot : node->slots_occupied) {
-        if (slot.first.first == goal.first && slot.first.second == goal.second)
+        if (slot.first.first == goal.first && slot.first.second == goal.second && slot.second==Slot_Occupancy_Type::full)
+            
             // Smarter function to check that the slot is occupied fully comes here
             return true;
     }
