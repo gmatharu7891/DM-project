@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
     std::cout << "The time returned by move_a_robot: " << the_time << std::endl;
 
 
-    std::cout << "\nGrid occupancy: " << std::endl;
+    std::cout << "\n ### Grid occupancy: ###" << std::endl;
     // Testing the function
     /*std::list<Slots_Occupancy> previous_occupancy;
     std::list< Robot_Command > other_robots_commands_testing;

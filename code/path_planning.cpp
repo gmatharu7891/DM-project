@@ -240,6 +240,8 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
 
     // For each legal move, estimate what slots will be occupied after the execution (map of slots occupied)
     for (auto& state : next_possible_states) {
+        
+        std::cout << "- Possible next state: " << static_cast<int>(state) << std::endl;
         std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_to_be_occupied;
         if (state == Robot_Command_Type::stop || state == Robot_Command_Type::moving_E
                 || state == Robot_Command_Type::moving_N || state == Robot_Command_Type::moving_S
@@ -247,6 +249,12 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
             slots_to_be_occupied = move_robot_normally_or_stop(r, state, parent->state, parent->slots_occupied);
         } else {
             slots_to_be_occupied = apply_command_on_idle_position(r, state, parent->slots_occupied.begin()->first);
+        }
+        
+        std::cout << "Slots to be occupied:" << std::endl;
+        for (auto& slot: slots_to_be_occupied){
+            std::cout << "X: " << slot.first.first << "; Y: " << slot.first.second << std::endl;
+            std::cout << "Occupancy type: " << static_cast<int>(slot.second) << std::endl;
         }
 
         bool collision = false;
@@ -256,6 +264,7 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
             if (slot_to_be_occupied.first.first >= EW || slot_to_be_occupied.first.second >= NS
                     || slot_to_be_occupied.first.first < 0 || slot_to_be_occupied.first.second < 0) {
                 // Move outside the grid
+                std::cout << "Move leads outside the grid" << std::endl;
                 outside_the_grid = true;
                 break;
             }
@@ -267,8 +276,9 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
                     for (auto& occupied_slot : occupancy.slots_occupied) {
                         // Smart function to check if robots can be in different parts of the same slot goes here
                         // But we ain't have one yet so ...
-                        if (occupied_slot.first.first == slot_to_be_occupied.first.first ||
+                        if (occupied_slot.first.first == slot_to_be_occupied.first.first &&
                                 occupied_slot.first.second == slot_to_be_occupied.first.second) {
+                            std::cout << "Move leads to collision with robot " << occupancy.r << std::endl;
                             collision = true;
                         }
                     }
@@ -282,7 +292,8 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
             child = new TreeNode;
             child->state = state;
             child->slots_occupied = slots_to_be_occupied;
-            child->level = (parent->level)++;
+            time_t parent_time = parent->level;
+            child->level = parent_time++;
             child->parent = parent;
 
             children.push_back(child);
