@@ -19,61 +19,73 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
 
     if (other_robots_commands.empty()) {
         std::cout << "Grid is empty, path is definitely free" << std::endl;
-    } else { // Need BFS tree to find shortest path
-        // Start the navigation
-        time_t t = 0;
+    } else {
+        if (robot_in_initial_situation.find(my_robot)->second.first == my_destination.first
+                && robot_in_initial_situation.find(my_robot)->second.second == my_destination.second) {
+            std::cout << "Initial position and destination are the same" << std::endl;
+            return 0;
 
-        // Initialize the root of the tree
-        struct TreeNode *root;
-        root = new TreeNode;
-        root->state = Robot_Command_Type::idle;
-        root->slots_occupied[robot_in_initial_situation.find(my_robot)->second] = Slot_Occupancy_Type::full;
-        root->level = t;
-        root->parent = NULL;
+        } else { // Need BFS tree to find shortest path
 
-        // Populate the children (build up the tree) every time check if destination is reached
-        std::list<Slots_Occupancy> previous_occupancy;
-        std::list<Slots_Occupancy> current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
+            // Initialize the root of the tree
+            struct TreeNode *root;
+            root = new TreeNode;
+            root->state = Robot_Command_Type::idle;
+            root->slots_occupied[robot_in_initial_situation.find(my_robot)->second] = Slot_Occupancy_Type::full;
+            root->level = 0;
+            root->parent = NULL;
 
-        // -------------------------------- BFS ------------------------------------------------ //
-        std::queue<TreeNode*> bfs_queue;
-        bfs_queue.push(root);
+            // Populate the children (build up the tree) every time check if destination is reached
+            std::list<Slots_Occupancy> previous_occupancy;
+            // Start the navigation
+            time_t t = 0;
 
-        TreeNode* leaf_of_the_shortest_path;
+            // -------------------------------- BFS ------------------------------------------------ //
+            std::queue<TreeNode*> bfs_queue;
+            bfs_queue.push(root);
 
-        while (!bfs_queue.empty()) {
-            TreeNode *node_to_visit = bfs_queue.front();
-            std::list<TreeNode*> children = generate_all_possible_next_moves(my_robot, gridsize_NS, gridsize_EW, node_to_visit,
-                    my_destination, current_occupancy);
+            TreeNode* leaf_of_the_shortest_path;
 
-            // Check if any of the children reached the goal, if so break;
-            bool goal_reached = false;
-            for (auto& child : children) {
-                if (reached_the_goal(child, my_destination)) {
-                    leaf_of_the_shortest_path = child;
-                    goal_reached = true;
+            while (!bfs_queue.empty()) {
+                std::cout << "\nDecision tree level (time): " << t << std::endl;
+                std::list<Slots_Occupancy> current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
+                TreeNode *node_to_visit = bfs_queue.front();
+                node_to_visit->children = generate_all_possible_next_moves(my_robot, gridsize_NS, gridsize_EW, node_to_visit,
+                        my_destination, current_occupancy);
+
+                // Check if any of the children reached the goal, if so break;
+                std::cout << "Number of nodes on level " << t << ": " << node_to_visit->children.size() << std::endl;
+                bool goal_reached = false;
+                for (auto& child : node_to_visit->children) {
+                    std::cout << "Node state: " << static_cast<int> (child->state) << std::endl;
+                    std::cout << "Node level: " << child->level << std::endl;
+                    std::cout << "Node's parent level: " << child->parent->level << std::endl;
+                    if (reached_the_goal(child, my_destination)) {
+                        leaf_of_the_shortest_path = child;
+                        goal_reached = true;
+                        break;
+                    }
+                }
+                if (goal_reached) {
                     break;
                 }
-            }
-            if (goal_reached) {
-                break;
-            }
 
-            // If goal not found in current level continue constructing the tree
-            previous_occupancy = current_occupancy;
-            t++;
-            current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
+                // If goal not found in current level build the next level
+                t++;
+                previous_occupancy = current_occupancy;
 
-            if (!children.empty()) {
-                for (auto& child_node : children) {
-                    bfs_queue.push(child_node);
+                if (!(node_to_visit->children.empty())) {
+                    for (auto& child_node : node_to_visit->children) {
+                        bfs_queue.push(child_node);
+                    }
                 }
-            } else {
-                break; // Added for now for the sake of testing
+                sleep(1); // Added for testing
             }
-        }
 
-        // Reconstruct the path, populate the list of my robot commands
+            // Reconstruct the path, populate the list of my robot commands
+            std::cout << "Time when reached the goal: " << leaf_of_the_shortest_path->level << std::endl;
+            std::cout << "State when reached the goal: " << static_cast<int> (leaf_of_the_shortest_path->state) << std::endl;
+        }
     }
 
     return 12;
@@ -196,6 +208,10 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
                     case Robot_Command_Type::moving_W:
                         new_cmd = Robot_Command_Type::moving_W;
                         break;
+                    case Robot_Command_Type::stop:
+                    case Robot_Command_Type::idle:
+                        new_cmd = Robot_Command_Type::idle;
+                        break;
                 }
                 slots_occupancy->cmd = new_cmd;
                 slots_occupancy->slots_occupied = move_robot_normally_or_stop(prev_occupancy.r, new_cmd, prev_occupancy.cmd, prev_occupancy.slots_occupied);
@@ -266,7 +282,7 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
             child = new TreeNode;
             child->state = state;
             child->slots_occupied = slots_to_be_occupied;
-            child->level = parent->level++;
+            child->level = (parent->level)++;
             child->parent = parent;
 
             children.push_back(child);
@@ -471,6 +487,12 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
 
     if (is_fast(r)) { // move fast robot
         switch (current_cmd) {
+            case Robot_Command_Type::idle:
+            {
+                std::cout << "Robot was stopped and remains unmoved" << std::endl;
+                new_slots_occupied = slots_occupied;
+            }
+                break;
             case Robot_Command_Type::moving_E:
             {
                 std::cout << "Move fast robot normally to the east" << std::endl;
@@ -583,6 +605,12 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
         }
     } else { // move slow robot
         switch (current_cmd) {
+            case Robot_Command_Type::idle:
+            {
+                std::cout << "Robot was stopped and remains unmoved" << std::endl;
+                new_slots_occupied = slots_occupied;
+            }
+                break;
             case Robot_Command_Type::moving_E:
             {
                 std::cout << "Move slow robot normally to the east" << std::endl;
@@ -761,6 +789,7 @@ std::list<My_Robot_Space::Robot_Command_Type> My_Robot_Space::get_next_possible_
     if (is_fast(r)) {
         switch (prev_state) {
             case Robot_Command_Type::stop:
+            case Robot_Command_Type::idle:
                 next_legal_states.push_back(Robot_Command_Type::acc_E);
                 next_legal_states.push_back(Robot_Command_Type::acc_W);
                 next_legal_states.push_back(Robot_Command_Type::acc_N);
@@ -812,6 +841,7 @@ std::list<My_Robot_Space::Robot_Command_Type> My_Robot_Space::get_next_possible_
     } else {
         switch (prev_state) {
             case Robot_Command_Type::stop:
+            case Robot_Command_Type::idle:
                 next_legal_states.push_back(Robot_Command_Type::acc_E);
                 next_legal_states.push_back(Robot_Command_Type::acc_W);
                 next_legal_states.push_back(Robot_Command_Type::acc_N);
