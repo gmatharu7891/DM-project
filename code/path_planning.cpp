@@ -32,7 +32,7 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
             root = new TreeNode;
             root->state = Robot_Command_Type::idle;
             root->slots_occupied[robot_in_initial_situation.find(my_robot)->second] = Slot_Occupancy_Type::full;
-            root->level = 0;
+            root->level = 0; // actually before zero time (first two levels of decision tree both have level 0)
             root->parent = NULL;
 
             // Populate the children (build up the tree) every time check if destination is reached
@@ -50,16 +50,16 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
                 std::cout << "\nDecision tree level (time): " << t << std::endl;
                 std::list<Slots_Occupancy> current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
                 TreeNode *node_to_visit = bfs_queue.front();
+                bfs_queue.pop();
                 node_to_visit->children = generate_all_possible_next_moves(my_robot, gridsize_NS, gridsize_EW, node_to_visit,
                         my_destination, current_occupancy);
-
+                
                 // Check if any of the children reached the goal, if so break;
-                std::cout << "Number of nodes on level " << t << ": " << node_to_visit->children.size() << std::endl;
+                std::cout << "Number of children of current node: " << node_to_visit->children.size() << std::endl;
                 bool goal_reached = false;
                 for (auto& child : node_to_visit->children) {
-                    std::cout << "Node state: " << static_cast<int> (child->state) << std::endl;
-                    std::cout << "Node level: " << child->level << std::endl;
-                    std::cout << "Node's parent level: " << child->parent->level << std::endl;
+                    std::cout << "Node state: " << static_cast<int> (child->state) << "; Node level: " << child->level << std::endl;
+                    std::cout << "Node's parent level: " << child->parent->level << "; Node's parent state: " << static_cast<int>(child->parent->state) << std::endl;
                     if (reached_the_goal(child, my_destination)) {
                         leaf_of_the_shortest_path = child;
                         goal_reached = true;

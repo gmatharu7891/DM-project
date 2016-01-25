@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     other_robots_commands.push_back(*first_command);
     other_robots_commands.push_back(*second_command);
 
-    std::pair <unsigned, unsigned> my_destination (2, 1);
+    std::pair <unsigned, unsigned> my_destination (3, 1);
 
     std::list< Robot_Command > *p_my_robots_commands;
 
