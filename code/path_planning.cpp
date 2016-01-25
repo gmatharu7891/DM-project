@@ -39,13 +39,27 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
         std::queue<TreeNode*> bfs_queue;
         bfs_queue.push(root);
 
+        TreeNode* leaf_of_the_shortest_path;
+
         while (!bfs_queue.empty()) {
             TreeNode *node_to_visit = bfs_queue.front();
             std::list<TreeNode*> children = generate_all_possible_next_moves(my_robot, gridsize_NS, gridsize_EW, node_to_visit,
                     my_destination, current_occupancy);
-            // Check if any of the children reached the goal, if so break;
 
-            // Otherwise:
+            // Check if any of the children reached the goal, if so break;
+            bool goal_reached = false;
+            for (auto& child : children) {
+                if (reached_the_goal(child, my_destination)) {
+                    leaf_of_the_shortest_path = child;
+                    goal_reached = true;
+                    break;
+                }
+            }
+            if (goal_reached) {
+                break;
+            }
+
+            // If goal not found in current level continue constructing the tree
             previous_occupancy = current_occupancy;
             t++;
             current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
@@ -219,17 +233,19 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
             slots_to_be_occupied = apply_command_on_idle_position(r, state, parent->slots_occupied.begin()->first);
         }
 
-        // Eliminate the moves that lead outside the grid
+        bool collision = false;
+        bool outside_the_grid = false;
+        // Eliminate the move if it leads outside the grid
         for (auto& slot_to_be_occupied : slots_to_be_occupied) {
             if (slot_to_be_occupied.first.first >= EW || slot_to_be_occupied.first.second >= NS
                     || slot_to_be_occupied.first.first < 0 || slot_to_be_occupied.first.second < 0) {
                 // Move outside the grid
+                outside_the_grid = true;
                 break;
             }
 
-            // Eliminate the moves, which lead to collisions with other robots based on the grid_occupancy
+            // Eliminate the move, which leads to collisions with other robots based on the grid_occupancy
             // Check for collisions with every robot one by one
-            bool collision = false;
             for (auto& occupancy : grid_occupancy) {
                 if (!collision) {
                     for (auto& occupied_slot : occupancy.slots_occupied) {
@@ -242,20 +258,36 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
                     }
                 }
             }
+        }
 
-            // For each remaining legal move create a TreeNode object add it to the output list
+        // For each legal move create a TreeNode object add it to the output list
+        if (!collision && !outside_the_grid) {
             struct TreeNode *child;
             child = new TreeNode;
             child->state = state;
             child->slots_occupied = slots_to_be_occupied;
             child->level = parent->level++;
             child->parent = parent;
-            
+
             children.push_back(child);
         }
+
     }
 
     return children;
+}
+
+
+// Function to check if the goal is reached
+
+bool My_Robot_Space::reached_the_goal(TreeNode* node, std::pair<unsigned, unsigned> goal) {
+    // for slots occupied in node check if there are any goal slots
+    for (auto& slot : node->slots_occupied) {
+        if (slot.first.first == goal.first && slot.first.second == goal.second)
+            // Smarter function to check that the slot is occupied fully comes here
+            return true;
+    }
+    return false;
 }
 
 

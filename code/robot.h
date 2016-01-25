@@ -155,6 +155,9 @@ namespace My_Robot_Space {
     // Function to generate the occupancy state of the grid for time t
     std::list<Slots_Occupancy> grid_occupancy_t(Robot_ID_t t, std::list<Robot_Command> other_robots_commands, std::list<Slots_Occupancy> previous_occupancy,
             const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation);
+    
+    // Function to check if the goal is reached
+    bool reached_the_goal(TreeNode* node, std::pair<unsigned, unsigned> goal);
 
 
     // Render the whole process
