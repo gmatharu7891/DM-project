@@ -37,6 +37,7 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
 
             // Populate the children (build up the tree) every time check if destination is reached
             std::list<Slots_Occupancy> previous_occupancy;
+            unsigned second_evaluated = 0;
 
             // -------------------------------- BFS ------------------------------------------------ //
             std::queue<TreeNode*> bfs_queue;
@@ -47,9 +48,23 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
             while (!bfs_queue.empty()) {
                 TreeNode *node_to_visit = bfs_queue.front();
                 bfs_queue.pop();
-                time_t t = node_to_visit->level;
+                time_t t;
+                if (node_to_visit->parent == NULL) {
+                    t = 0;
+                } else {
+                    time_t parent_time = node_to_visit->level;
+                    t = ++parent_time;
+                }
+                
                 std::cout << "\nDecision tree level (time): " << t << std::endl;
-                std::list<Slots_Occupancy> current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
+                std::list<Slots_Occupancy> current_occupancy;
+                if(t!=second_evaluated || t==0){
+                    current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
+                    previous_occupancy = current_occupancy;
+                    second_evaluated++;
+                }else{
+                    std::cout << "Grid for this second already evaluated" << std::endl;
+                }
                 node_to_visit->children = generate_all_possible_next_moves(my_robot, gridsize_NS, gridsize_EW, node_to_visit,
                         my_destination, current_occupancy);
 
@@ -71,9 +86,6 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
                 }
 
                 // If goal not found in current level build the next level
-                t++;
-                previous_occupancy = current_occupancy;
-
                 if (!(node_to_visit->children.empty())) {
                     for (auto& child_node : node_to_visit->children) {
                         bfs_queue.push(child_node);
@@ -83,6 +95,7 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
             }
 
             // Reconstruct the path, populate the list of my robot commands
+            std::cout << "\nResult:" << std::endl;
             std::cout << "Time when reached the goal: " << leaf_of_the_shortest_path->level << std::endl;
             std::cout << "State when reached the goal: " << static_cast<int> (leaf_of_the_shortest_path->state) << std::endl;
 
