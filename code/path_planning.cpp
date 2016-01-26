@@ -14,7 +14,7 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
         std::pair<unsigned, unsigned> my_destination,
         std::list< Robot_Command > *p_my_robots_commands,
         std::vector<std::list<Slots_Occupancy>> *other_robots_trajectories,
-        std::list<std::pair<unsigned, unsigned>> *my_robot_trajectory) {
+        std::list<std::map<std::pair<int, int>, Slot_Occupancy_Type>> *my_robot_trajectory) {
 
     std::cout << "Returns the shortest path " << std::endl;
     std::cout << "My robot: " << my_robot << std::endl;
@@ -86,6 +86,7 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
                     }
                 }
                 if (goal_reached) {
+                    other_robots_trajectories->push_back(current_occupancy);
                     break;
                 }
 
@@ -94,10 +95,12 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
                     for (auto& child_node : node_to_visit->children) {
                         bfs_queue.push(child_node);
                     }
+                }else{
+                    // If there is no next level, probably there is no solution
+                    return 0;
                 }
-                sleep(1); // Added for testing
             }
-
+            sleep(1);
             // Reconstruct the path, populate the list of my robot commands
             std::cout << "\nResult:" << std::endl;
             std::cout << "Time when reached the goal: " << leaf_of_the_shortest_path->level << std::endl;
@@ -356,7 +359,7 @@ bool My_Robot_Space::reached_the_goal(TreeNode* node, std::pair<unsigned, unsign
 // Function to reconstruct the path
 
 void My_Robot_Space::reconstruct_the_path(TreeNode* leaf, Robot_ID_t r, std::list< Robot_Command > *p_my_robots_commands, 
-        std::list<std::pair<unsigned, unsigned>> *my_robot_trajectory) {
+        std::list<std::map<std::pair<int, int>, Slot_Occupancy_Type>> *my_robot_trajectory) {
 
     while (leaf->parent != NULL) {
         if (leaf->state == Robot_Command_Type::stop || leaf->state == Robot_Command_Type::acc_E
@@ -365,7 +368,7 @@ void My_Robot_Space::reconstruct_the_path(TreeNode* leaf, Robot_ID_t r, std::lis
             Robot_Command new_command = {leaf->level, r, leaf->state};
             p_my_robots_commands->push_front(new_command);
         }
-        my_robot_trajectory->push_front(leaf->slots_occupied.begin()->first);
+        my_robot_trajectory->push_front(leaf->slots_occupied);
         leaf = leaf->parent;
     }
     return;

@@ -16,7 +16,7 @@
 using namespace My_Robot_Space;
 
 void My_Robot_Space::render_the_process(time_t t, Robot_ID_t my_robot, unsigned NS, unsigned EW, std::pair<unsigned, unsigned> my_destination,
-        std::vector<std::list<Slots_Occupancy>> other_robots_trajectories, std::pair<unsigned, unsigned> my_position) {
+        std::vector<std::list<Slots_Occupancy>> other_robots_trajectories, std::map<std::pair<int, int>, Slot_Occupancy_Type> my_position) {
 
     unsigned **grid = new unsigned *[NS];
 
@@ -30,19 +30,22 @@ void My_Robot_Space::render_the_process(time_t t, Robot_ID_t my_robot, unsigned 
 
     //Put current positions to the grid
     std::cout << "Grid state:" << std::endl;
-    grid[my_position.first][my_position.second] = my_robot;
+    for(auto& my_slot:my_position){
+        grid[my_slot.first.first][my_slot.first.second] = my_robot;
+    }
+    
 
-    /*for (auto& robot : other_robots_trajectories.at(t)) {
+    for (auto& robot : other_robots_trajectories.at(t)) {
         //std::cout << "Robot with ID: " << robot_id << std::endl;
         //std::cout << "Is executing command: " << static_cast<int> (robot.cmd) << std::endl;
         //std::cout << "Slots occupied:" << std::endl;
         for (auto& slot : robot.slots_occupied) {
             //save the robot id on grid
             grid[slot.first.first][slot.first.second] = robot.r;
-            //std::cout << "X: " << slot.first.first << "; Y: " << slot.first.second << std::endl;
-            //std::cout << "Occupancy type: " << static_cast<int>(slot.second) << std::endl;
+            std::cout << "X: " << slot.first.first << "; Y: " << slot.first.second << std::endl;
+            std::cout << "Occupancy type: " << static_cast<int>(slot.second) << std::endl;
         }
-    }*/
+    }
 
     //printing loop
     for (int i = NS - 1; i >= 0; i--) {

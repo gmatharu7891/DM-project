@@ -33,13 +33,13 @@ int main(int argc, char** argv) {
     other_robots_commands.push_back(first_command);
     other_robots_commands.push_back(second_command);
 
-    std::pair <unsigned, unsigned> my_destination(3, 1);
+    std::pair <unsigned, unsigned> my_destination(5, 1);
 
     std::list< Robot_Command > *p_my_robots_commands = new std::list< Robot_Command >;
 
     std::vector<std::list < Slots_Occupancy>> *other_robots_trajectories = new std::vector<std::list < Slots_Occupancy>>;
 
-    std::list<std::pair<unsigned, unsigned>> *my_robot_trajectory = new std::list<std::pair<unsigned, unsigned>>;
+    std::list<std::map<std::pair<int, int>, Slot_Occupancy_Type>> *my_robot_trajectory = new std::list<std::map<std::pair<int, int>, Slot_Occupancy_Type>>;
 
     std::cout << "\nCalling move_a_robot...\n" << std::endl;
 
@@ -50,8 +50,8 @@ int main(int argc, char** argv) {
     std::cout << "The time returned by move_a_robot: " << the_time << std::endl;
 
     std::cout << "\n" << std::endl;
-
-    std::cout << "Size of my robot trajectory: " << my_robot_trajectory->size() << std::endl;
+    sleep(1);
+    std::cout << "Size of other robots trajectory: " << other_robots_trajectories->size() << std::endl;
 
     My_Robot_Space::time_t time_for_rendering = 0;
     for (auto& grid_state : *my_robot_trajectory) {

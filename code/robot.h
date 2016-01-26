@@ -76,7 +76,7 @@ namespace My_Robot_Space {
             Robot_ID_t my_robot, std::pair<unsigned, unsigned> my_destination,
             std::list< Robot_Command > *p_my_robots_commands,
             std::vector<std::list<Slots_Occupancy>> *other_robots_trajectories,
-            std::list<std::pair<unsigned, unsigned>> *my_robot_trajectory);
+            std::list<std::map<std::pair<int, int>, Slot_Occupancy_Type>> *my_robot_trajectory);
 
     // Everything happens on a NS by EW grid.
 
@@ -169,12 +169,12 @@ namespace My_Robot_Space {
 
     // Render the whole process
     void render_the_process(time_t t, Robot_ID_t my_robot, unsigned NS, unsigned EW, std::pair<unsigned, unsigned> my_destination, 
-            std::vector<std::list<Slots_Occupancy>> other_robots_trajectories, std::pair<unsigned, unsigned> my_position);
+            std::vector<std::list<Slots_Occupancy>> other_robots_trajectories, std::map<std::pair<int, int>, Slot_Occupancy_Type> my_position);
 
 
     // Function to reconstruct the path
     void reconstruct_the_path(TreeNode* leaf, Robot_ID_t r, std::list< Robot_Command > *p_my_robots_commands, 
-            std::list<std::pair<unsigned, unsigned>> *my_robot_trajectory);
+            std::list<std::map<std::pair<int, int>, Slot_Occupancy_Type>> *my_robot_trajectory);
 
 
     //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ Additional functions ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤//
