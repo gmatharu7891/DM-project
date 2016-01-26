@@ -12,7 +12,7 @@
 
 #include <list>
 #include <map>
-
+#include <vector>
 
 namespace My_Robot_Space {
 
@@ -74,7 +74,9 @@ namespace My_Robot_Space {
             const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation,
             const std::list< Robot_Command > & other_robots_commands,
             Robot_ID_t my_robot, std::pair<unsigned, unsigned> my_destination,
-            std::list< Robot_Command > *p_my_robots_commands);
+            std::list< Robot_Command > *p_my_robots_commands,
+            std::vector<std::list<Slots_Occupancy>> *other_robots_trajectories,
+            std::list<std::pair<unsigned, unsigned>> *my_robot_trajectory);
 
     // Everything happens on a NS by EW grid.
 
@@ -90,6 +92,10 @@ namespace My_Robot_Space {
 
     // Put the commands into the list ``*p_my_robots_commands''.
     // Promise: That list is empty when the function is called. (So you can just append.)
+    
+    // Those are necessary just for rendering purpose
+    // std::list<std::list<Slots_Occupancy>> *other_robots_trajectories,
+    // std::list<std::list<Slots_Occupancy>> *my_robot_trajectories
 
     // The function returns the time when the robot stops at its destination.  (This number should be minimized.)
 
@@ -119,7 +125,7 @@ namespace My_Robot_Space {
     // Another robot can immediately follow in the same direction and (at most) the same speed so that they are ``bumper-to-bumper''.
 
 
-    //------------------------------------Main functions-----------------------------------------------------//
+    //------------------------------------ Main functions -----------------------------------------------------//
 
 
     // Function to generate commands and initial positions for other robots
@@ -149,7 +155,7 @@ namespace My_Robot_Space {
     std::list<Robot_Command> generate_sample_other_robots_commands(char direction, int robot_id, char movement);
 
     // Function to generate all possible next moves
-    std::list<TreeNode*> generate_all_possible_next_moves(Robot_ID_t r, unsigned NS, unsigned EW, TreeNode *parent, std::pair<unsigned, unsigned> my_destinaniton, 
+    std::list<TreeNode*> generate_all_possible_next_moves(Robot_ID_t r, unsigned NS, unsigned EW, TreeNode *parent, std::pair<unsigned, unsigned> my_destinaniton,
             std::list<Slots_Occupancy> grid_occupancy);
 
 
@@ -162,14 +168,16 @@ namespace My_Robot_Space {
 
 
     // Render the whole process
-    void render_the_process(unsigned NS, unsigned EW);
+    void render_the_process(time_t t, Robot_ID_t my_robot, unsigned NS, unsigned EW, std::pair<unsigned, unsigned> my_destination, 
+            std::vector<std::list<Slots_Occupancy>> other_robots_trajectories, std::pair<unsigned, unsigned> my_position);
 
 
     // Function to reconstruct the path
-    void reconstruct_the_path(TreeNode* leaf, Robot_ID_t r, std::list< Robot_Command > *p_my_robots_commands);
+    void reconstruct_the_path(TreeNode* leaf, Robot_ID_t r, std::list< Robot_Command > *p_my_robots_commands, 
+            std::list<std::pair<unsigned, unsigned>> *my_robot_trajectory);
 
 
-    //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤Additional functions¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤//
+    //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ Additional functions ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤//
 
     // Determine type of the robot
     bool is_fast(Robot_ID_t r);

@@ -1,6 +1,7 @@
 #include "robot.h"
 #include <iostream>
 
+//create commands for fast robot in circular(c)[s=stepwise and initialization=1,1] motion anticlockwise(a)
 std::list<My_Robot_Space::Robot_Command> My_Robot_Space::generate_sample_other_robots_commands(char direction, int robot_id, char movement)
 {
     std::list<Robot_Command> other_robots_commands;

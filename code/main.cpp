@@ -7,7 +7,7 @@
 #include <iostream>
 #include <cstdlib>
 #include "robot.h"
-
+#include <unistd.h>
 
 using namespace My_Robot_Space;
 
@@ -33,104 +33,41 @@ int main(int argc, char** argv) {
     other_robots_commands.push_back(first_command);
     other_robots_commands.push_back(second_command);
 
-    std::pair <unsigned, unsigned> my_destination (3, 1);
+    std::pair <unsigned, unsigned> my_destination(3, 1);
 
     std::list< Robot_Command > *p_my_robots_commands = new std::list< Robot_Command >;
+
+    std::vector<std::list < Slots_Occupancy>> *other_robots_trajectories = new std::vector<std::list < Slots_Occupancy>>;
+
+    std::list<std::pair<unsigned, unsigned>> *my_robot_trajectory = new std::list<std::pair<unsigned, unsigned>>;
 
     std::cout << "\nCalling move_a_robot...\n" << std::endl;
 
     My_Robot_Space::time_t the_time = move_a_robot(NS, EW, robot_in_initial_situation,
-            other_robots_commands, my_robot_id, my_destination, p_my_robots_commands);
+            other_robots_commands, my_robot_id, my_destination, p_my_robots_commands,
+            other_robots_trajectories, my_robot_trajectory);
 
     std::cout << "The time returned by move_a_robot: " << the_time << std::endl;
 
-
-    std::cout << "\n ### Grid occupancy: ###" << std::endl;
-    // Testing the function
-    /*std::list<Slots_Occupancy> previous_occupancy;
-    std::list< Robot_Command > other_robots_commands_testing;
-
-    struct Robot_Command *first_command_testinf;
-
-    first_command_testinf = new Robot_Command;
-
-    first_command_testinf->t = 0;
-    first_command_testinf->r = 1;
-    first_command_testinf->cmd = Robot_Command_Type::acc_N;
-
-    struct Robot_Command *second_command_testing;
-
-    second_command_testing = new Robot_Command;
-
-    second_command_testing->t = 4;
-    second_command_testing->r = 1;
-    second_command_testing->cmd = Robot_Command_Type::stop;
-
-    other_robots_commands_testing.push_back(*first_command_testinf);
-    other_robots_commands_testing.push_back(*second_command_testing);
-    
-    std::pair <unsigned, unsigned> other_robot_init_testing (0,0);
-        
-    std::map<Robot_ID_t, std::pair<unsigned,unsigned>> robot_in_initial_situation_testing;
-    
-    robot_in_initial_situation_testing[1] = other_robot_init_testing;
-    
-     ################## Let's rock ########################## 
-    
-    std::list<Slots_Occupancy> grid_occupancy_0 = grid_occupancy_t(0, other_robots_commands_testing, previous_occupancy, robot_in_initial_situation_testing);
-    
-    std::cout << "\nNext move, compute next occupancy\n" << std::endl;
-    
-    std::list<Slots_Occupancy> grid_occupancy_1 = grid_occupancy_t(1, other_robots_commands_testing, grid_occupancy_0, robot_in_initial_situation_testing);
-    
-    std::cout << "\nNext move, compute next occupancy\n" << std::endl;
-    
-    std::list<Slots_Occupancy> grid_occupancy_2 = grid_occupancy_t(2, other_robots_commands_testing, grid_occupancy_1, robot_in_initial_situation_testing);
-    
-    std::cout << "\nNext move, compute next occupancy\n" << std::endl;
-    
-    std::list<Slots_Occupancy> grid_occupancy_3 = grid_occupancy_t(3, other_robots_commands_testing, grid_occupancy_2, robot_in_initial_situation_testing);
-    
-    std::cout << "\nNext move, compute next occupancy\n" << std::endl;
-    
-    std::list<Slots_Occupancy> grid_occupancy_4 = grid_occupancy_t(4, other_robots_commands_testing, grid_occupancy_3, robot_in_initial_situation_testing);
-    
-    for (auto& robot:grid_occupancy_4 ){
-        std::cout << "Robot with ID: " << robot.r << std::endl;
-        std::cout << "Is executing command: " << static_cast<int>(robot.cmd) << std::endl;
-        std::cout << "Slots occupied:" << std::endl;
-        for (auto& slot: robot.slots_occupied){
-            std::cout << "X: " << slot.first.first << "; Y: " << slot.first.second << std::endl;
-            std::cout << "Occupancy type: " << static_cast<int>(slot.second) << std::endl;
-        }
-    }
-     */
-
-    // Testing grid_occupancy_t with sample other_robots_commands
-    std::list<Robot_Command> sample_other_robots_commands = generate_sample_other_robots_commands('a', 129, 's');
-    std::pair <unsigned, unsigned> sample_other_robot_init(1, 1);
-    std::map<Robot_ID_t, std::pair<unsigned, unsigned>> sample_robot_in_initial_situation;
-    sample_robot_in_initial_situation[129] = sample_other_robot_init;
-    
-    std::list<Slots_Occupancy> previous_occupancy;
-    std::list<Slots_Occupancy> grid_occupancy_0 = grid_occupancy_t(0, sample_other_robots_commands, previous_occupancy, sample_robot_in_initial_situation);
-    std::cout<<"\n";
-    std::list<Slots_Occupancy> grid_occupancy_1 = grid_occupancy_t(1, sample_other_robots_commands, grid_occupancy_0, sample_robot_in_initial_situation);
-    
-    
-    for (auto& robot:grid_occupancy_1 ){
-        std::cout << "Robot with ID: " << robot.r << std::endl;
-        std::cout << "Is executing command: " << static_cast<int>(robot.cmd) << std::endl;
-        std::cout << "Slots occupied:" << std::endl;
-        for (auto& slot: robot.slots_occupied){
-            std::cout << "X: " << slot.first.first << "; Y: " << slot.first.second << std::endl;
-            std::cout << "Occupancy type: " << static_cast<int>(slot.second) << std::endl;
-        }
-    }
-    
     std::cout << "\n" << std::endl;
-    
-    render_the_process(7,7);
+
+    std::cout << "Size of my robot trajectory: " << my_robot_trajectory->size() << std::endl;
+
+    My_Robot_Space::time_t time_for_rendering = 0;
+    for (auto& grid_state : *my_robot_trajectory) {
+        std::cout << "Time: " << time_for_rendering << std::endl;
+        render_the_process(time_for_rendering, my_robot_id, 7, 7, my_destination, *other_robots_trajectories, grid_state);
+        
+        //Let user observe the output for a second before updating console
+        sleep(1);
+        // CSI[2J clears screen, CSI[H moves the cursor to top-left corner
+        if (time_for_rendering != the_time) {
+            std::cout << "\x1B[2J\x1B[H";
+        }
+        time_for_rendering++;
+    }
+
+
 
     return 0;
 }
