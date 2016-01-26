@@ -52,14 +52,14 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
                 std::list<Slots_Occupancy> current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
                 node_to_visit->children = generate_all_possible_next_moves(my_robot, gridsize_NS, gridsize_EW, node_to_visit,
                         my_destination, current_occupancy);
-                
+
                 // Check if any of the children reached the goal, if so break;
-                std::cout << "Node to be visited (state : time): " << static_cast<int>(node_to_visit->state) << " : " << node_to_visit->level << std::endl;
+                std::cout << "Node to be visited (state : time): " << static_cast<int> (node_to_visit->state) << " : " << node_to_visit->level << std::endl;
                 std::cout << "Number of children of current node: " << node_to_visit->children.size() << std::endl;
                 bool goal_reached = false;
                 for (auto& child : node_to_visit->children) {
                     std::cout << "Node state: " << static_cast<int> (child->state) << "; Node level: " << child->level << std::endl;
-                    std::cout << "Node's parent level: " << child->parent->level << "; Node's parent state: " << static_cast<int>(child->parent->state) << std::endl;
+                    std::cout << "Node's parent level: " << child->parent->level << "; Node's parent state: " << static_cast<int> (child->parent->state) << std::endl;
                     if (reached_the_goal(child, my_destination)) {
                         leaf_of_the_shortest_path = child;
                         goal_reached = true;
@@ -85,6 +85,13 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
             // Reconstruct the path, populate the list of my robot commands
             std::cout << "Time when reached the goal: " << leaf_of_the_shortest_path->level << std::endl;
             std::cout << "State when reached the goal: " << static_cast<int> (leaf_of_the_shortest_path->state) << std::endl;
+
+            reconstruct_the_path(leaf_of_the_shortest_path, my_robot, p_my_robots_commands);
+
+            for (auto& cmd : *p_my_robots_commands) {
+                std::cout << "My robot cmd: " << cmd.t << " " << static_cast<int> (cmd.cmd) << std::endl;
+            }
+
         }
     }
 
@@ -240,8 +247,8 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
 
     // For each legal move, estimate what slots will be occupied after the execution (map of slots occupied)
     for (auto& state : next_possible_states) {
-        
-        std::cout << "- Possible next state: " << static_cast<int>(state) << std::endl;
+
+        std::cout << "- Possible next state: " << static_cast<int> (state) << std::endl;
         std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_to_be_occupied;
         if (state == Robot_Command_Type::stop || state == Robot_Command_Type::moving_E
                 || state == Robot_Command_Type::moving_N || state == Robot_Command_Type::moving_S
@@ -250,11 +257,11 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
         } else {
             slots_to_be_occupied = apply_command_on_idle_position(r, state, parent->slots_occupied.begin()->first);
         }
-        
+
         std::cout << "Slots to be occupied:" << std::endl;
-        for (auto& slot: slots_to_be_occupied){
+        for (auto& slot : slots_to_be_occupied) {
             std::cout << "X: " << slot.first.first << "; Y: " << slot.first.second << std::endl;
-            std::cout << "Occupancy type: " << static_cast<int>(slot.second) << std::endl;
+            std::cout << "Occupancy type: " << static_cast<int> (slot.second) << std::endl;
         }
 
         bool collision = false;
@@ -292,12 +299,12 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
             child = new TreeNode;
             child->state = state;
             child->slots_occupied = slots_to_be_occupied;
-            time_t parent_time = parent->level;            
-            if (parent->parent==NULL){
+            time_t parent_time = parent->level;
+            if (parent->parent == NULL) {
                 child->level = parent_time;
-            }else{
+            } else {
                 child->level = ++parent_time;
-            }        
+            }
             child->parent = parent;
 
             children.push_back(child);
@@ -314,12 +321,36 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
 bool My_Robot_Space::reached_the_goal(TreeNode* node, std::pair<unsigned, unsigned> goal) {
     // for slots occupied in node check if there are any goal slots
     for (auto& slot : node->slots_occupied) {
-        if (slot.first.first == goal.first && slot.first.second == goal.second && slot.second==Slot_Occupancy_Type::full)
-            
+        if (slot.first.first == goal.first && slot.first.second == goal.second && slot.second == Slot_Occupancy_Type::full)
+
             // Smarter function to check that the slot is occupied fully comes here
             return true;
     }
     return false;
+}
+
+
+// Function to reconstruct the path
+
+void My_Robot_Space::reconstruct_the_path(TreeNode* leaf, Robot_ID_t r, std::list< Robot_Command > *p_my_robots_commands) {
+
+    while (leaf->parent != NULL) {
+        if (leaf->state == Robot_Command_Type::stop || leaf->state == Robot_Command_Type::acc_E
+                || leaf->state == Robot_Command_Type::acc_N || leaf->state == Robot_Command_Type::acc_S
+                || leaf->state == Robot_Command_Type::acc_W) {
+            struct Robot_Command *new_command;
+            new_command = new Robot_Command;
+            new_command->t = leaf->level;
+            new_command->r = r;
+            new_command->cmd = leaf->state;
+
+            p_my_robots_commands->push_front(*new_command);
+        }
+
+        leaf = leaf->parent;
+    }
+
+    return;
 }
 
 

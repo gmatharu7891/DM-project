@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
 
     std::pair <unsigned, unsigned> my_destination (3, 1);
 
-    std::list< Robot_Command > *p_my_robots_commands;
+    std::list< Robot_Command > *p_my_robots_commands = new std::list< Robot_Command >;
 
     std::cout << "\nCalling move_a_robot...\n" << std::endl;
 

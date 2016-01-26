@@ -149,13 +149,13 @@ namespace My_Robot_Space {
     std::list<Robot_Command> generate_sample_other_robots_commands(char direction, int robot_id, char movement);
 
     // Function to generate all possible next moves
-    std::list<TreeNode*> generate_all_possible_next_moves(Robot_ID_t r, unsigned NS, unsigned EW, TreeNode *parent,std::pair<unsigned, unsigned> my_destinaniton, std::list<Slots_Occupancy> grid_occupancy);
-    
+    std::list<TreeNode*> generate_all_possible_next_moves(Robot_ID_t r, unsigned NS, unsigned EW, TreeNode *parent, std::pair<unsigned, unsigned> my_destinaniton, std::list<Slots_Occupancy> grid_occupancy);
+
 
     // Function to generate the occupancy state of the grid for time t
     std::list<Slots_Occupancy> grid_occupancy_t(Robot_ID_t t, std::list<Robot_Command> other_robots_commands, std::list<Slots_Occupancy> previous_occupancy,
             const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation);
-    
+
     // Function to check if the goal is reached
     bool reached_the_goal(TreeNode* node, std::pair<unsigned, unsigned> goal);
 
@@ -163,6 +163,10 @@ namespace My_Robot_Space {
     // Render the whole process
     void render(std::list<Robot_Command> other_robots_commands, std::list< Robot_Command > my_robots_commands,
             std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation);
+
+
+    // Function to reconstruct the path
+    void reconstruct_the_path(TreeNode* leaf, Robot_ID_t r, std::list< Robot_Command > *p_my_robots_commands);
 
 
     //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤Additional functions¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤//
@@ -179,7 +183,7 @@ namespace My_Robot_Space {
             Robot_Command_Type current_cmd, Robot_Command_Type previous_cmd, std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied);
 
     // Returns legal next states (commands) of the robot
-    std::list<Robot_Command_Type> get_next_possible_states(Robot_ID_t r, Robot_Command_Type prev_state, 
+    std::list<Robot_Command_Type> get_next_possible_states(Robot_ID_t r, Robot_Command_Type prev_state,
             std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> prev_slots_occupied);
 
 }
