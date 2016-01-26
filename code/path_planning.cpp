@@ -338,18 +338,11 @@ void My_Robot_Space::reconstruct_the_path(TreeNode* leaf, Robot_ID_t r, std::lis
         if (leaf->state == Robot_Command_Type::stop || leaf->state == Robot_Command_Type::acc_E
                 || leaf->state == Robot_Command_Type::acc_N || leaf->state == Robot_Command_Type::acc_S
                 || leaf->state == Robot_Command_Type::acc_W) {
-            struct Robot_Command *new_command;
-            new_command = new Robot_Command;
-            new_command->t = leaf->level;
-            new_command->r = r;
-            new_command->cmd = leaf->state;
-
-            p_my_robots_commands->push_front(*new_command);
+            Robot_Command new_command = {leaf->level, r, leaf->state};
+            p_my_robots_commands->push_front(new_command);
         }
-
         leaf = leaf->parent;
     }
-
     return;
 }
 
