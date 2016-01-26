@@ -15,12 +15,12 @@ std::list<My_Robot_Space::Robot_Command> My_Robot_Space::generate_sample_other_r
         cmd.cmd=Robot_Command_Type::acc_E;
         other_robots_commands.push_back(cmd);
 
-        cmd.t=7;
+        cmd.t=6;
         cmd.r=robot_id;
         cmd.cmd=Robot_Command_Type::stop;
         other_robots_commands.push_back(cmd);
 
-        cmd.t=8;
+        cmd.t=7;
         cmd.r=robot_id;
         cmd.cmd=Robot_Command_Type::acc_N;
         other_robots_commands.push_back(cmd);
@@ -45,12 +45,12 @@ std::list<My_Robot_Space::Robot_Command> My_Robot_Space::generate_sample_other_r
         cmd.cmd=Robot_Command_Type::acc_S;
         other_robots_commands.push_back(cmd);
 
-        cmd.t=38;
+        cmd.t=39;
         cmd.r=robot_id;
         cmd.cmd=Robot_Command_Type::stop;
         other_robots_commands.push_back(cmd);
     }
-    //slow robot moving anticlockwise and with circlular movement starting at 1,1 or 0,0
+    //slow robot moving anticlockwise and with circular movement starting at 1,1 or 0,0
     else if(robot_id>=128 and direction =='a' and movement=='c')
     {
         cmd.t=0;
@@ -257,7 +257,7 @@ std::list<My_Robot_Space::Robot_Command> My_Robot_Space::generate_sample_other_r
         other_robots_commands.push_back(cmd);
     }
     // fast robot step movement
-    else if(robot_id<128 and direction =='a'and movement=='s')
+    else if(robot_id<128 && direction =='a' && movement=='s')
     {
         cmd.t=0;
         cmd.r=robot_id;
@@ -439,4 +439,3 @@ std::list<My_Robot_Space::Robot_Command> My_Robot_Space::generate_sample_other_r
     
     return other_robots_commands;
 }
-

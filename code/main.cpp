@@ -127,12 +127,13 @@ int main(int argc, char** argv) {
             std::cout << "Occupancy type: " << static_cast<int>(slot.second) << std::endl;
         }
     }
-
-
+    
+    std::cout << "\n" << std::endl;
+    
+    render_the_process(7,7);
 
     return 0;
 }
-
 
 
 

@@ -47,7 +47,7 @@ namespace My_Robot_Space {
     struct Slots_Occupancy {
         Robot_ID_t r;
         Robot_Command_Type cmd;
-        std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied;
+        std::map<std::pair<int, int>, Slot_Occupancy_Type> slots_occupied;
     };
 
     // Commands sent to robot
@@ -62,7 +62,7 @@ namespace My_Robot_Space {
 
     struct TreeNode {
         Robot_Command_Type state;
-        std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied;
+        std::map<std::pair<int, int>, Slot_Occupancy_Type> slots_occupied;
         std::list<TreeNode*> children;
         TreeNode* parent; // for path reconstruction
         time_t level;
@@ -149,7 +149,8 @@ namespace My_Robot_Space {
     std::list<Robot_Command> generate_sample_other_robots_commands(char direction, int robot_id, char movement);
 
     // Function to generate all possible next moves
-    std::list<TreeNode*> generate_all_possible_next_moves(Robot_ID_t r, unsigned NS, unsigned EW, TreeNode *parent, std::pair<unsigned, unsigned> my_destinaniton, std::list<Slots_Occupancy> grid_occupancy);
+    std::list<TreeNode*> generate_all_possible_next_moves(Robot_ID_t r, unsigned NS, unsigned EW, TreeNode *parent, std::pair<unsigned, unsigned> my_destinaniton, 
+            std::list<Slots_Occupancy> grid_occupancy);
 
 
     // Function to generate the occupancy state of the grid for time t
@@ -161,8 +162,7 @@ namespace My_Robot_Space {
 
 
     // Render the whole process
-    void render(std::list<Robot_Command> other_robots_commands, std::list< Robot_Command > my_robots_commands,
-            std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation);
+    void render_the_process(unsigned NS, unsigned EW);
 
 
     // Function to reconstruct the path
@@ -175,18 +175,17 @@ namespace My_Robot_Space {
     bool is_fast(Robot_ID_t r);
 
     // Returns slots occupied after robot accelerates
-    std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> apply_command_on_idle_position(Robot_ID_t r,
-            Robot_Command_Type cmd, std::pair<unsigned, unsigned> init_pos);
+    std::map<std::pair<int, int>, Slot_Occupancy_Type> apply_command_on_idle_position(Robot_ID_t r,
+            Robot_Command_Type cmd, std::pair<int, int> init_pos);
 
     // Returns slots occupied after robot moves normally or stops
-    std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> move_robot_normally_or_stop(Robot_ID_t r,
-            Robot_Command_Type current_cmd, Robot_Command_Type previous_cmd, std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied);
+    std::map<std::pair<int, int>, Slot_Occupancy_Type> move_robot_normally_or_stop(Robot_ID_t r,
+            Robot_Command_Type current_cmd, Robot_Command_Type previous_cmd, std::map<std::pair<int, int>, Slot_Occupancy_Type> slots_occupied);
 
     // Returns legal next states (commands) of the robot
     std::list<Robot_Command_Type> get_next_possible_states(Robot_ID_t r, Robot_Command_Type prev_state,
-            std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> prev_slots_occupied);
+            std::map<std::pair<int, int>, Slot_Occupancy_Type> prev_slots_occupied);
 
 }
 
 #endif	/* ROBOT_H */
-

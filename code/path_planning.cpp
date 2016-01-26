@@ -6,6 +6,7 @@
 #include <queue>
 
 // Function to compute the shortest path
+// This is THE function, other functions are created to be used in this function
 
 My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsigned gridsize_EW,
         const std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation,
@@ -55,14 +56,14 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
                     time_t parent_time = node_to_visit->level;
                     t = ++parent_time;
                 }
-                
+
                 std::cout << "\nDecision tree level (time): " << t << std::endl;
                 std::list<Slots_Occupancy> current_occupancy;
-                if(t!=second_evaluated || t==0){
+                if (t != second_evaluated || t == 0) {
                     current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
                     previous_occupancy = current_occupancy;
                     second_evaluated++;
-                }else{
+                } else {
                     std::cout << "Grid for this second already evaluated" << std::endl;
                 }
                 node_to_visit->children = generate_all_possible_next_moves(my_robot, gridsize_NS, gridsize_EW, node_to_visit,
@@ -91,7 +92,7 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
                         bfs_queue.push(child_node);
                     }
                 }
-                sleep(1); // Added for testing
+                //sleep(1); // Added for testing
             }
 
             // Reconstruct the path, populate the list of my robot commands
@@ -110,6 +111,11 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
 
     return 12;
 }
+
+
+
+
+
 
 // Function to generate commands and initial positions for other robots
 
@@ -262,10 +268,10 @@ std::list<My_Robot_Space::TreeNode*> My_Robot_Space::generate_all_possible_next_
     for (auto& state : next_possible_states) {
 
         std::cout << "- Possible next state: " << static_cast<int> (state) << std::endl;
-        std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_to_be_occupied;
-        if (state == Robot_Command_Type::stop || state == Robot_Command_Type::moving_E
-                || state == Robot_Command_Type::moving_N || state == Robot_Command_Type::moving_S
-                || state == Robot_Command_Type::moving_W) {
+        std::map<std::pair<int, int>, Slot_Occupancy_Type> slots_to_be_occupied;
+        if (state == Robot_Command_Type::stop || state == Robot_Command_Type::idle
+                || state == Robot_Command_Type::moving_E || state == Robot_Command_Type::moving_N 
+                || state == Robot_Command_Type::moving_S || state == Robot_Command_Type::moving_W) {
             slots_to_be_occupied = move_robot_normally_or_stop(r, state, parent->state, parent->slots_occupied);
         } else {
             slots_to_be_occupied = apply_command_on_idle_position(r, state, parent->slots_occupied.begin()->first);
@@ -359,43 +365,6 @@ void My_Robot_Space::reconstruct_the_path(TreeNode* leaf, Robot_ID_t r, std::lis
     return;
 }
 
-
-// Render the whole process
-
-void My_Robot_Space::render(std::list<Robot_Command> other_robots_commands, std::list< Robot_Command > my_robots_commands,
-        std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation) {
-
-    // Initialize grid and fill it with zeros
-    char **grid = new char *[10];
-
-    for (int i = 0; i < 10; ++i) {
-        grid[i] = new char[10];
-        for (int j = 0; j < 10; ++j) {
-            grid[i][j] = '0';
-        }
-    }
-
-    for (int t = 0; t < 10; ++t) {
-        //Print out time value
-        std::cout << "Time:" << t << std::endl;
-        //Print out grid state
-        std::cout << "Grid state:" << std::endl;
-
-        // TODO: update grid according to occupancy table and my_robots_commands
-        //       render updated grid for current value of t
-
-        //Let user observe the output for a second before updating console
-        sleep(1);
-        // CSI[2J clears the screen, CSI[H moves the cursor to top-left corner
-        if (t != 9) {
-            std::cout << "\x1B[2J\x1B[H";
-        }
-    }
-
-    std::cout << "Finished" << std::endl;
-
-}
-
 // Determine type of the robot
 
 bool My_Robot_Space::is_fast(Robot_ID_t r) {
@@ -406,10 +375,10 @@ bool My_Robot_Space::is_fast(Robot_ID_t r) {
 
 // Returns slots occupied after robot accelerates
 
-std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_Robot_Space::apply_command_on_idle_position(Robot_ID_t r,
-        Robot_Command_Type cmd, std::pair<unsigned, unsigned> init_pos) {
+std::map<std::pair<int, int>, My_Robot_Space::Slot_Occupancy_Type> My_Robot_Space::apply_command_on_idle_position(Robot_ID_t r,
+        Robot_Command_Type cmd, std::pair<int, int> init_pos) {
 
-    std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied;
+    std::map<std::pair<int, int>, Slot_Occupancy_Type> slots_occupied;
 
     if (is_fast(r)) { // move fast robot
         switch (cmd) {
@@ -419,7 +388,7 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
                 std::cout << "Accelerate fast robot east" << std::endl;
                 // init_pos is now occupied 1/2 on the east side of the slot
                 // init_pos.x+1, init_pos.y is now occupied 1/2 on the west side of the slot
-                std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first + 1, init_pos.second);
+                std::pair<int, int> new_occupied_slot(init_pos.first + 1, init_pos.second);
 
                 slots_occupied[init_pos] = Slot_Occupancy_Type::e_1_2;
                 slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::w_1_2;
@@ -433,7 +402,7 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
                 std::cout << "Accelerate fast robot north" << std::endl;
                 // init_pos is now occupied 3/4 on the north side of the slot
                 // init_pos.x, init_pos.y+1 is now occupied 1/4 on the south side of the slot
-                std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first, init_pos.second + 1);
+                std::pair<int, int> new_occupied_slot(init_pos.first, init_pos.second + 1);
 
                 slots_occupied[init_pos] = Slot_Occupancy_Type::n_3_4;
                 slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::s_1_4;
@@ -445,7 +414,7 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
                 std::cout << "Accelerate fast robot south" << std::endl;
                 // init_pos is now occupied 3/4 on the south side of the slot
                 // init_pos.x+1, init_pos.y is now occupied 1/4 on the north side of the slot
-                std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first, init_pos.second - 1);
+                std::pair<int, int> new_occupied_slot(init_pos.first, init_pos.second - 1);
 
                 slots_occupied[init_pos] = Slot_Occupancy_Type::s_3_4;
                 slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::n_1_4;
@@ -457,7 +426,7 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
                 std::cout << "Accelerate fast robot west" << std::endl;
                 // init_pos is now occupied 1/2 on the west side of the slot
                 // init_pos.x-1, init_pos.y is now occupied 1/2 on the east side of the slot
-                std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first - 1, init_pos.second);
+                std::pair<int, int> new_occupied_slot(init_pos.first - 1, init_pos.second);
 
                 slots_occupied[init_pos] = Slot_Occupancy_Type::w_1_2;
                 slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::e_1_2;
@@ -478,7 +447,7 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
                 std::cout << "Accelerate slow robot east" << std::endl;
                 // init_pos is now occupied 3/4 on the east side of the slot
                 // init_pos.x+1, init_pos.y is now occupied 1/4 on the west side of the slot
-                std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first + 1, init_pos.second);
+                std::pair<int, int> new_occupied_slot(init_pos.first + 1, init_pos.second);
 
                 slots_occupied[init_pos] = Slot_Occupancy_Type::e_3_4;
                 slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::w_1_4;
@@ -490,7 +459,7 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
                 std::cout << "Accelerate slow robot north" << std::endl;
                 // init_pos is now occupied 7/8 on the north side of the slot
                 // init_pos.x, init_pos.y+1 is now occupied 1/8 on the south side of the slot
-                std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first, init_pos.second + 1);
+                std::pair<int, int> new_occupied_slot(init_pos.first, init_pos.second + 1);
 
                 slots_occupied[init_pos] = Slot_Occupancy_Type::n_7_8;
                 slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::s_1_8;
@@ -502,7 +471,7 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
                 std::cout << "Accelerate slow robot south" << std::endl;
                 // init_pos is now occupied 7/8 on the south side of the slot
                 // init_pos.x, init_pos.y-1 is now occupied 1/8 on the north side of the slot
-                std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first, init_pos.second - 1);
+                std::pair<int, int> new_occupied_slot(init_pos.first, init_pos.second - 1);
 
                 slots_occupied[init_pos] = Slot_Occupancy_Type::s_7_8;
                 slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::n_1_8;
@@ -514,7 +483,7 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
                 std::cout << "Accelerate slow robot west" << std::endl;
                 // init_pos is now occupied 3/4 on the west side of the slot
                 // init_pos.x-1, init_pos.y is now occupied 1/4 on the east side of the slot
-                std::pair<unsigned, unsigned> new_occupied_slot(init_pos.first - 1, init_pos.second);
+                std::pair<int, int> new_occupied_slot(init_pos.first - 1, init_pos.second);
 
                 slots_occupied[init_pos] = Slot_Occupancy_Type::w_3_4;
                 slots_occupied[new_occupied_slot] = Slot_Occupancy_Type::e_1_4;
@@ -533,10 +502,10 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
 
 // Returns slots occupied after robot moves normally or stops
 
-std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_Robot_Space::move_robot_normally_or_stop(Robot_ID_t r, Robot_Command_Type current_cmd,
-        Robot_Command_Type previous_cmd, std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> slots_occupied) {
+std::map<std::pair<int, int>, My_Robot_Space::Slot_Occupancy_Type> My_Robot_Space::move_robot_normally_or_stop(Robot_ID_t r, Robot_Command_Type current_cmd,
+        Robot_Command_Type previous_cmd, std::map<std::pair<int, int>, Slot_Occupancy_Type> slots_occupied) {
 
-    std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> new_slots_occupied;
+    std::map<std::pair<int, int>, Slot_Occupancy_Type> new_slots_occupied;
 
     if (is_fast(r)) { // move fast robot
         switch (current_cmd) {
@@ -601,7 +570,7 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
             {
                 std::cout << "Move fast robot normally to the west" << std::endl;
                 for (auto& slot : slots_occupied) {
-                    if (slot.second == Slot_Occupancy_Type::e_1_2) {
+                    if (slot.second == Slot_Occupancy_Type::w_1_2) {
                         std::pair<unsigned, unsigned> new_occupied_slot1(slot.first.first - 1, slot.first.second);
                         std::pair<unsigned, unsigned> new_occupied_slot2(slot.first.first - 2, slot.first.second);
                         new_slots_occupied[new_occupied_slot1] = Slot_Occupancy_Type::w_1_2;
@@ -835,7 +804,7 @@ std::map<std::pair<unsigned, unsigned>, My_Robot_Space::Slot_Occupancy_Type> My_
 }
 
 std::list<My_Robot_Space::Robot_Command_Type> My_Robot_Space::get_next_possible_states(Robot_ID_t r, Robot_Command_Type prev_state,
-        std::map<std::pair<unsigned, unsigned>, Slot_Occupancy_Type> prev_slots_occupied) {
+        std::map<std::pair<int, int>, Slot_Occupancy_Type> prev_slots_occupied) {
 
     std::list<Robot_Command_Type> next_legal_states;
 
@@ -847,6 +816,7 @@ std::list<My_Robot_Space::Robot_Command_Type> My_Robot_Space::get_next_possible_
                 next_legal_states.push_back(Robot_Command_Type::acc_W);
                 next_legal_states.push_back(Robot_Command_Type::acc_N);
                 next_legal_states.push_back(Robot_Command_Type::acc_S);
+                next_legal_states.push_back(Robot_Command_Type::idle);
                 break;
             case Robot_Command_Type::acc_E:
                 next_legal_states.push_back(Robot_Command_Type::stop);
@@ -899,6 +869,7 @@ std::list<My_Robot_Space::Robot_Command_Type> My_Robot_Space::get_next_possible_
                 next_legal_states.push_back(Robot_Command_Type::acc_W);
                 next_legal_states.push_back(Robot_Command_Type::acc_N);
                 next_legal_states.push_back(Robot_Command_Type::acc_S);
+                next_legal_states.push_back(Robot_Command_Type::idle);
                 break;
             case Robot_Command_Type::acc_E:
                 next_legal_states.push_back(Robot_Command_Type::moving_E);
