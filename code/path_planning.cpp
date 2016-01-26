@@ -211,7 +211,7 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
             }
             //else: no new cmds, robot moves normally
             if (!found_new_command) {
-                std::cout << "No new command for this robot at this time" << std::endl;
+                //std::cout << "No new command for this robot at this time" << std::endl;
                 //apply normal movement to the previous occupancy state to generate a new one  
                 struct Slots_Occupancy *slots_occupancy;
                 slots_occupancy = new Slots_Occupancy;
@@ -246,7 +246,7 @@ std::list<My_Robot_Space::Slots_Occupancy> My_Robot_Space::grid_occupancy_t(Robo
         }
     }
 
-    std::cout << "Size of current occupancy list: " << current_occupancy.size() << std::endl;
+    //std::cout << "Size of current occupancy list: " << current_occupancy.size() << std::endl;
     return current_occupancy;
 }
 

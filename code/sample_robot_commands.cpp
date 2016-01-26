@@ -58,37 +58,37 @@ std::list<My_Robot_Space::Robot_Command> My_Robot_Space::generate_sample_other_r
         cmd.cmd=Robot_Command_Type::acc_E;
         other_robots_commands.push_back(cmd);
 
-        cmd.t=14;
+        cmd.t=12;
         cmd.r=robot_id;
         cmd.cmd=Robot_Command_Type::stop;
         other_robots_commands.push_back(cmd);
 
-        cmd.t=15;
+        cmd.t=13;
         cmd.r=robot_id;
         cmd.cmd=Robot_Command_Type::acc_N;
         other_robots_commands.push_back(cmd);
 
-        cmd.t=47;
+        cmd.t=37;
         cmd.r=robot_id;
         cmd.cmd=Robot_Command_Type::stop;
         other_robots_commands.push_back(cmd);
 
-        cmd.t=48;
+        cmd.t=38;
         cmd.r=robot_id;
         cmd.cmd=Robot_Command_Type::acc_W;
         other_robots_commands.push_back(cmd);
 
-        cmd.t=61;
+        cmd.t=50;
         cmd.r=robot_id;
         cmd.cmd=Robot_Command_Type::stop;
         other_robots_commands.push_back(cmd);
 
-        cmd.t=62;
+        cmd.t=51;
         cmd.r=robot_id;
         cmd.cmd=Robot_Command_Type::acc_S;
         other_robots_commands.push_back(cmd);
 
-        cmd.t=94;
+        cmd.t=75;
         cmd.r=robot_id;
         cmd.cmd=Robot_Command_Type::stop;
         other_robots_commands.push_back(cmd);

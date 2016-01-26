@@ -28,10 +28,10 @@ void My_Robot_Space::render_the_process(unsigned NS, unsigned EW) {
     }
     //create commands for fast robot in circular(c)[s=stepwise and initialization=1,1] motion anticlockwise(a)
 
-    std::list<Robot_Command> sample_other_robots_commands = generate_sample_other_robots_commands('a', 100, 'c');
+    std::list<Robot_Command> sample_other_robots_commands = generate_sample_other_robots_commands('a', 130, 'c');
     std::pair <unsigned, unsigned> sample_other_robot_init(0, 0);
     std::map<Robot_ID_t, std::pair<unsigned, unsigned>> sample_robot_in_initial_situation;
-    sample_robot_in_initial_situation[100] = sample_other_robot_init;
+    sample_robot_in_initial_situation[130] = sample_other_robot_init;
     //vector to store previous occupancy
     std::vector<std::list < Slots_Occupancy >> occupancy_at_t(100);
     //for t=0 we need empty occupancy
@@ -40,7 +40,7 @@ void My_Robot_Space::render_the_process(unsigned NS, unsigned EW) {
     Robot_ID_t robot_id;
 
     //save the occupancy and print
-    for (int t = 0; t < 45; ++t) {
+    for (int t = 0; t < 80; ++t) {
         //Print out time value
         for (int i = 0; i < 10; ++i) {
             grid[i] = new unsigned[10];
@@ -65,15 +65,11 @@ void My_Robot_Space::render_the_process(unsigned NS, unsigned EW) {
             //std::cout << "Robot with ID: " << robot_id << std::endl;
             std::cout << "Is executing command: " << static_cast<int> (robot.cmd) << std::endl;
             //std::cout << "Slots occupied:" << std::endl;
-            std::cout << "No problem:" << std::endl;
-            std::cout << robot.slots_occupied.begin()->first.first << std::endl;
-            std::cout << "A problem" << std::endl;
-            
             for (auto& slot : robot.slots_occupied) {
                 //save the robot id on grid
                 grid[slot.first.first][slot.first.second] = robot_id;
-                std::cout << "X: " << slot.first.first << "; Y: " << slot.first.second << std::endl;
-                std::cout << "Occupancy type: " << static_cast<int>(slot.second) << std::endl;
+                //std::cout << "X: " << slot.first.first << "; Y: " << slot.first.second << std::endl;
+                //std::cout << "Occupancy type: " << static_cast<int>(slot.second) << std::endl;
             }
         }
 
@@ -90,10 +86,10 @@ void My_Robot_Space::render_the_process(unsigned NS, unsigned EW) {
         }
 
         //Let user observe the output for a second before updating console
-        sleep(1);
+        usleep(400000);
         // CSI[2J clears screen, CSI[H moves the cursor to top-left corner
-        if (t != 20) {
-            //std::cout << "\x1B[2J\x1B[H";
+        if (t != 79) {
+            std::cout << "\x1B[2J\x1B[H";
         }
     }
 
