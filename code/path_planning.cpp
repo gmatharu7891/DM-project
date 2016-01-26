@@ -99,6 +99,7 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
                     // If there is no next level, probably there is no solution
                     return 0;
                 }
+                sleep(1);
             }
             sleep(1);
             // Reconstruct the path, populate the list of my robot commands
@@ -836,7 +837,7 @@ std::list<My_Robot_Space::Robot_Command_Type> My_Robot_Space::get_next_possible_
                 next_legal_states.push_back(Robot_Command_Type::moving_W);
                 break;
             case Robot_Command_Type::acc_N:
-                next_legal_states.push_back(Robot_Command_Type::moving_E);
+                next_legal_states.push_back(Robot_Command_Type::moving_N);
                 break;
             case Robot_Command_Type::acc_S:
                 next_legal_states.push_back(Robot_Command_Type::moving_S);
@@ -887,7 +888,7 @@ std::list<My_Robot_Space::Robot_Command_Type> My_Robot_Space::get_next_possible_
                 next_legal_states.push_back(Robot_Command_Type::moving_W);
                 break;
             case Robot_Command_Type::acc_N:
-                next_legal_states.push_back(Robot_Command_Type::moving_E);
+                next_legal_states.push_back(Robot_Command_Type::moving_N);
                 break;
             case Robot_Command_Type::acc_S:
                 next_legal_states.push_back(Robot_Command_Type::moving_S);

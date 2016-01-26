@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     Robot_ID_t my_robot_id = 1, other_robot_id = 2;
     std::cout << "My robot ID: " << my_robot_id << std::endl;
 
-    unsigned NS = 7, EW = 7;
+    unsigned NS = 10, EW = 10;
     std::cout << "Grid size: NS - " << NS << "; EW - " << EW << std::endl;
 
     std::pair <unsigned, unsigned> my_robot_init(1, 1), other_robot_init(0, 6);
@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     other_robots_commands.push_back(first_command);
     other_robots_commands.push_back(second_command);
 
-    std::pair <unsigned, unsigned> my_destination(5, 1);
+    std::pair <unsigned, unsigned> my_destination(1, 2);
 
     std::list< Robot_Command > *p_my_robots_commands = new std::list< Robot_Command >;
 
@@ -51,12 +51,12 @@ int main(int argc, char** argv) {
 
     std::cout << "\n" << std::endl;
     sleep(1);
-    std::cout << "Size of other robots trajectory: " << other_robots_trajectories->size() << std::endl;
+    //std::cout << "Size of other robots trajectory: " << other_robots_trajectories->size() << std::endl;
 
     My_Robot_Space::time_t time_for_rendering = 0;
     for (auto& grid_state : *my_robot_trajectory) {
         std::cout << "Time: " << time_for_rendering << std::endl;
-        render_the_process(time_for_rendering, my_robot_id, 7, 7, my_destination, *other_robots_trajectories, grid_state);
+        render_the_process(time_for_rendering, my_robot_id, NS, EW, my_destination, *other_robots_trajectories, grid_state);
         
         //Let user observe the output for a second before updating console
         sleep(1);
