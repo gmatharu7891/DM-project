@@ -414,6 +414,7 @@ std::map<std::pair<int, int>, My_Robot_Space::Slot_Occupancy_Type> My_Robot_Spac
             {
                 // stop robot, unlikely to happen;
                 std::cout << "Fast robot's first command is stop. Really? Why?" << std::endl;
+                slots_occupied[init_pos] = Slot_Occupancy_Type::full;
             }
                 break;
         }
@@ -471,6 +472,7 @@ std::map<std::pair<int, int>, My_Robot_Space::Slot_Occupancy_Type> My_Robot_Spac
             {
                 // stop robot, unlikely to happen;
                 std::cout << "Slow robot's first command is stop. Really? Why?" << std::endl;
+                slots_occupied[init_pos] = Slot_Occupancy_Type::full;
             }
                 break;
         }
