@@ -29,16 +29,16 @@ int main(int argc, char** argv) {
     robot_in_initial_situation[other_robot_id_2] = other_robot_init_2;
 
     std::list< Robot_Command > other_robots_commands;
+    // Putting the robot '2' to stand in the way of the 'first' shortest path
     Robot_Command first_command = {0, other_robot_id, Robot_Command_Type::stop};
+    // Other robot will move a bit
     Robot_Command first_command_2 = {0, other_robot_id_2, Robot_Command_Type::acc_W};
-    //Robot_Command second_command = {4, other_robot_id, Robot_Command_Type::stop};
     Robot_Command second_command_2 = {4, other_robot_id_2, Robot_Command_Type::stop};
     other_robots_commands.push_back(first_command);
     other_robots_commands.push_back(first_command_2);
-    //other_robots_commands.push_back(second_command);
     other_robots_commands.push_back(second_command_2);
 
-    std::pair <unsigned, unsigned> my_destination(2, 3);
+    std::pair <unsigned, unsigned> my_destination(4, 4);
 
     std::list< Robot_Command > *p_my_robots_commands = new std::list< Robot_Command >;
     std::vector<std::list < Slots_Occupancy>> *other_robots_trajectories = new std::vector<std::list < Slots_Occupancy>>;
