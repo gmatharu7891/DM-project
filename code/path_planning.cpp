@@ -60,6 +60,7 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
                 }
 
                 std::cout << "\nDecision tree level (time): " << t << std::endl;
+                std::cout << "Node to be visited (state : time): " << static_cast<int> (node_to_visit->state) << " : " << node_to_visit->level << std::endl;
                 std::list<Slots_Occupancy> current_occupancy;
                 if (t != second_evaluated || t == 0) {
                     current_occupancy = grid_occupancy_t(t, other_robots_commands, previous_occupancy, robot_in_initial_situation);
@@ -73,7 +74,6 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
                         my_destination, current_occupancy);
 
                 // Check if any of the children reached the goal, if so break;
-                std::cout << "Node to be visited (state : time): " << static_cast<int> (node_to_visit->state) << " : " << node_to_visit->level << std::endl;
                 std::cout << "Number of children of current node: " << node_to_visit->children.size() << std::endl;
                 bool goal_reached = false;
                 for (auto& child : node_to_visit->children) {
@@ -99,7 +99,7 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
                     // If there is no next level, probably there is no solution
                     return 0;
                 }
-                sleep(1);
+                //sleep(1);
             }
             sleep(1);
             // Reconstruct the path, populate the list of my robot commands
