@@ -42,8 +42,8 @@ void My_Robot_Space::render_the_process(time_t t, Robot_ID_t my_robot, unsigned 
         for (auto& slot : robot.slots_occupied) {
             //save the robot id on grid
             grid[slot.first.first][slot.first.second] = robot.r;
-            std::cout << "X: " << slot.first.first << "; Y: " << slot.first.second << std::endl;
-            std::cout << "Occupancy type: " << static_cast<int>(slot.second) << std::endl;
+            //std::cout << "X: " << slot.first.first << "; Y: " << slot.first.second << std::endl;
+            //std::cout << "Occupancy type: " << static_cast<int>(slot.second) << std::endl;
         }
     }
 

@@ -123,38 +123,6 @@ My_Robot_Space::time_t My_Robot_Space::move_a_robot(unsigned gridsize_NS, unsign
 
 
 
-
-
-// Function to generate commands and initial positions for other robots
-
-void My_Robot_Space::generate_other_robots_commands(unsigned number_of_robots, unsigned NS, unsigned EW,
-        std::list<Robot_Command> other_robots_commands, std::map<Robot_ID_t, std::pair<unsigned, unsigned>> robot_in_initial_situation) {
-
-    /* Some guidelines:
-     * 
-     * First the robots IDs and initial positions should be assigned to all the robots (no collisions!)
-     * Then each robot is processed one by one, i.e. first "come up" with commands for the first robot.
-     * Then take the next robot and generate command for it so that it doesn't collide with the first one.
-     * And so it goes until commands for all robots are generated.
-     * 
-     * 
-     * Important! (some notes about the legal commands (due to the specifics in how robots are supposed to move))
-     * 
-     * IF fast robot accelerates east or west, ...
-     * ... it can be stopped at any time (1/2 + 1 + 1/2 = 2; 1/2 + 1 + 1 + ... + 1/2 = int - no problem, robot occupies full slot).
-     * 
-     * IF fast robot accelerates south or north OR slow robot accelerates east or west, ...
-     * ... it has to move normally for ODD number of seconds before it can be stopped (1/4 + 1/2 + 1/2 + 1/4 = 1,5 - robot between slots).
-     * 
-     * IF slow robot accelerates south or north, ...
-     * ... it has to move normally for 3*x seconds before being stopped (1/8 + 1/4 + 1/4 + 1/4 + 1/8 = 1 - no problem, robot occupies full slot).
-     * 
-     */
-    // ...
-
-}
-
-
 // Function to generate the occupancy state of the grid for time t
 // function assumes the commands in other_robot_commands are legal!
 

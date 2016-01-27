@@ -129,6 +129,7 @@ namespace My_Robot_Space {
 
 
     // Function to generate commands and initial positions for other robots
+    // Function unimplemented currently, using sample robot commands instead
     /* Some guidelines: (IMPORTANT!)
      * 
      * First the robots IDs and initial positions should be assigned to all the robots (no collisions!)
